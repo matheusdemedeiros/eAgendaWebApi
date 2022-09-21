@@ -1,3 +1,9 @@
+using eAgenda.Aplicacao.ModuloTarefa;
+using eAgenda.Dominio.ModuloTarefa;
+using eAgenda.Dominio;
+using eAgenda.Infra.Configs;
+using eAgenda.Infra.Orm.ModuloTarefa;
+using eAgenda.Infra.Orm;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -11,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using eAgenda.Webapi.Config.AutoMapperConfig;
 
 namespace eAgenda.Webapi
 {
@@ -26,6 +33,15 @@ namespace eAgenda.Webapi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSingleton((x) => new ConfiguracaoAplicacaoeAgenda().ConnectionStrings);
+            services.AddScoped<IContextoPersistencia, eAgendaDbContext>();
+            services.AddScoped<IRepositorioTarefa, RepositorioTarefaOrm>();
+            services.AddTransient<ServicoTarefa>();
+
+            services.AddAutoMapper(config =>
+            {
+                config.AddProfile<TarefaProfile>();
+            });
 
             services.AddControllers();
             services.AddSwaggerGen(c =>

@@ -2,11 +2,13 @@
 using eAgenda.Dominio.ModuloTarefa;
 using eAgenda.Infra.Orm.ModuloTarefa;
 using eAgenda.Infra.Orm;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using eAgenda.Infra.Configs;
 using System;
+using eAgenda.Webapi.ViewModels;
+using AutoMapper;
+using eAgenda.Webapi.Config.AutoMapperConfig;
 
 namespace eAgenda.Webapi.Controllers
 {
@@ -16,59 +18,60 @@ namespace eAgenda.Webapi.Controllers
     {
         private readonly ServicoTarefa servicoTarefa;
 
-        public TarefasController()
+        private readonly IMapper mapeadorTarefas;
+
+        public TarefasController(ServicoTarefa servicoTarefa, IMapper mapeadorTarefas)
         {
-            var config = new ConfiguracaoAplicacaoeAgenda();
-            var eAgendaDbContext = new eAgendaDbContext(config.ConnectionStrings);
-            var repositorioTarefa = new RepositorioTarefaOrm(eAgendaDbContext);
-            servicoTarefa = new ServicoTarefa(repositorioTarefa, eAgendaDbContext);
+            this.servicoTarefa = servicoTarefa;
+            this.mapeadorTarefas = mapeadorTarefas;
         }
 
         [HttpGet]
-        public List<Tarefa> SelecionarTodos()
+        public List<ListarTarefaViewModel> SelecionarTodos()
         {
             var tarefaResult = servicoTarefa.SelecionarTodos(StatusTarefaEnum.Todos);
 
             if (tarefaResult.IsSuccess)
-                return tarefaResult.Value;
+                return mapeadorTarefas.Map<List<ListarTarefaViewModel>>(tarefaResult.Value);
 
             return null;
         }
 
-        [HttpGet("{id:guid}")]
-        public Tarefa SelecionarPorId(Guid id)
+        [HttpGet("visualizar-completa/{id:guid}")]
+        public VisualizarTarefaViewModel SelecionarTarefaCompletaPorId(Guid id)
         {
             var tarefaResult = servicoTarefa.SelecionarPorId(id);
 
             if (tarefaResult.IsSuccess)
-                return tarefaResult.Value;
+                return mapeadorTarefas.Map<VisualizarTarefaViewModel>(tarefaResult.Value);
 
             return null;
         }
 
         [HttpPost]
-        public Tarefa Inserir(Tarefa novaTarefa)
+        public FormsTarefaViewModel Inserir(InserirTarefaViewModel tarefaVM)
         {
-            var tarefaResult = servicoTarefa.Inserir(novaTarefa);
+            var tarefa = mapeadorTarefas.Map<Tarefa>(tarefaVM);
+
+            var tarefaResult = servicoTarefa.Inserir(tarefa);
 
             if (tarefaResult.IsSuccess)
-                return tarefaResult.Value;
+                return tarefaVM;
 
             return null;
         }
 
         [HttpPut("{id:guid}")]
-        public Tarefa Editar(Guid id, Tarefa tarefa)
+        public FormsTarefaViewModel Editar(Guid id, EditarTarefaViewModel tarefaVM)
         {
-            var tarefaEditada = servicoTarefa.SelecionarPorId(id).Value;
+            var tarefaSelecionada = servicoTarefa.SelecionarPorId(id).Value;
 
-            tarefaEditada.Titulo = tarefa.Titulo;
-            tarefaEditada.Prioridade = tarefa.Prioridade;
+            var tarefa = mapeadorTarefas.Map(tarefaVM, tarefaSelecionada);
 
-            var tarefaResult = servicoTarefa.Editar(tarefaEditada);
+            var tarefaResult = servicoTarefa.Editar(tarefa);
 
             if (tarefaResult.IsSuccess)
-                return tarefaResult.Value;
+                return tarefaVM;
 
             return null;
         }
