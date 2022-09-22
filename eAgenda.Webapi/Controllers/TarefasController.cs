@@ -6,9 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using eAgenda.Infra.Configs;
 using System;
-using eAgenda.Webapi.ViewModels;
 using AutoMapper;
 using eAgenda.Webapi.Config.AutoMapperConfig;
+using eAgenda.Webapi.ViewModels.ModuloTarefa;
 
 namespace eAgenda.Webapi.Controllers
 {

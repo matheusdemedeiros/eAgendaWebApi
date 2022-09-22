@@ -1,7 +1,7 @@
 ﻿using eAgenda.Dominio.ModuloTarefa;
 using System.Collections.Generic;
 
-namespace eAgenda.Webapi.ViewModels
+namespace eAgenda.Webapi.ViewModels.ModuloTarefa
 {
     public class FormsTarefaViewModel
     {
@@ -16,7 +16,7 @@ namespace eAgenda.Webapi.ViewModels
     {
 
     }
-    
+
     public class EditarTarefaViewModel : FormsTarefaViewModel
     {
 
