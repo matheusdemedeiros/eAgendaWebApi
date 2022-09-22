@@ -1,12 +1,12 @@
 ﻿using eAgenda.Aplicacao.ModuloContato;
-using eAgenda.Infra.Configs;
-using eAgenda.Infra.Orm.ModuloContato;
-using Microsoft.AspNetCore.Mvc;
-using eAgenda.Infra.Orm;
-using System.Collections.Generic;
 using eAgenda.Dominio.ModuloContato;
-using System;
+using eAgenda.Infra.Configs;
+using eAgenda.Infra.Orm;
+using eAgenda.Infra.Orm.ModuloContato;
 using eAgenda.Webapi.ViewModels.ModuloContato;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
 
 namespace eAgenda.Webapi.Controllers
 {

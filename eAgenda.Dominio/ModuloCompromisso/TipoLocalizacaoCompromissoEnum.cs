@@ -1,7 +1,13 @@
-﻿namespace eAgenda.Dominio.ModuloCompromisso
+﻿using System.ComponentModel;
+
+namespace eAgenda.Dominio.ModuloCompromisso
 {
     public enum TipoLocalizacaoCompromissoEnum
     {
-        Remoto, Presencial
+        [Description("Remoto")]
+        Remoto,
+
+        [Description("Presencial")]
+        Presencial
     }
 }

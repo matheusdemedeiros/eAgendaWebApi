@@ -1,14 +1,10 @@
-﻿using eAgenda.Aplicacao.ModuloTarefa;
+﻿using AutoMapper;
+using eAgenda.Aplicacao.ModuloTarefa;
 using eAgenda.Dominio.ModuloTarefa;
-using eAgenda.Infra.Orm.ModuloTarefa;
-using eAgenda.Infra.Orm;
-using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using eAgenda.Infra.Configs;
-using System;
-using AutoMapper;
-using eAgenda.Webapi.Config.AutoMapperConfig;
 using eAgenda.Webapi.ViewModels.ModuloTarefa;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
 
 namespace eAgenda.Webapi.Controllers
 {
