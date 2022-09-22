@@ -9,7 +9,7 @@ namespace eAgenda.Dominio.ModuloCompromisso
     {
         private DateTime _date;
         private TipoLocalizacaoCompromissoEnum _compromissoEnum;
-        public Compromisso()
+        public Compromisso() : base()
         {
             Data = DateTime.Now;
             HoraInicio = Data.TimeOfDay;

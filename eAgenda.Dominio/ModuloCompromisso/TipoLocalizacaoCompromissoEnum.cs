@@ -5,9 +5,9 @@ namespace eAgenda.Dominio.ModuloCompromisso
     public enum TipoLocalizacaoCompromissoEnum
     {
         [Description("Remoto")]
-        Remoto,
+        Remoto = 0,
 
         [Description("Presencial")]
-        Presencial
+        Presencial = 1
     }
 }
