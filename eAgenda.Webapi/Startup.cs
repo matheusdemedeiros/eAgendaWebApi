@@ -56,6 +56,7 @@ namespace eAgenda.Webapi
                 config.AddProfile<TarefaProfile>();
                 config.AddProfile<ContatoProfile>();
                 config.AddProfile<CompromissoProfile>();
+                config.AddProfile<DespesaProfile>();
             });
 
             services.AddControllers();

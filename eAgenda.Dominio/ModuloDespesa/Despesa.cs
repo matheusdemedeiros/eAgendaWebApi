@@ -21,6 +21,7 @@ namespace eAgenda.Dominio.ModuloDespesa
         public FormaPgtoDespesaEnum FormaPagamento { get; set; }
 
         public List<Categoria> Categorias { get; set; }
+        //public List<Guid> CategoriasId { get; set; }
 
         public override void Atualizar(Despesa registro)
         {

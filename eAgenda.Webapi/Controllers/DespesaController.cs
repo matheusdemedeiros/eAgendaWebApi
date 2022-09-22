@@ -8,6 +8,7 @@ using eAgenda.Webapi.ViewModels.ModuloDespesa;
 using System;
 using eAgenda.Dominio.ModuloDespesa;
 using eAgenda.Dominio.Compartilhado;
+using AutoMapper;
 
 namespace eAgenda.Webapi.Controllers
 {
@@ -16,13 +17,12 @@ namespace eAgenda.Webapi.Controllers
     public class DespesaController : ControllerBase
     {
         private readonly ServicoDespesa servicoDespesa;
+        private readonly IMapper mapeadorDespesa;
 
-        public DespesaController()
+        public DespesaController(ServicoDespesa servicoDespesa, IMapper mapeadorDespesa)
         {
-            var config = new ConfiguracaoAplicacaoeAgenda();
-            var eAgendaDbContext = new eAgendaDbContext(config.ConnectionStrings);
-            var repositorioDespesa = new RepositorioDespesaOrm(eAgendaDbContext);
-            servicoDespesa = new ServicoDespesa(repositorioDespesa, eAgendaDbContext);
+            this.servicoDespesa = servicoDespesa;
+            this.mapeadorDespesa = mapeadorDespesa;
         }
 
         [HttpGet]
@@ -31,25 +31,7 @@ namespace eAgenda.Webapi.Controllers
             var despesaResult = servicoDespesa.SelecionarTodos();
 
             if (despesaResult.IsSuccess)
-            {
-                var despesasGravadas = despesaResult.Value;
-
-                var listagemDespesas = new List<ListarDespesaViewModel>();
-
-                foreach (var item in despesasGravadas)
-                {
-                    listagemDespesas.Add(
-                        new ListarDespesaViewModel()
-                        {
-                            Id = item.Id,
-                            Descricao = item.Descricao,
-                            Valor = item.Valor,
-                            Data = item.Data
-                        }
-                    );
-                }
-                return listagemDespesas;
-            }
+                return mapeadorDespesa.Map<List<ListarDespesaViewModel>>(despesaResult.Value);
 
             return null;
         }
@@ -60,46 +42,29 @@ namespace eAgenda.Webapi.Controllers
             var despesaResult = servicoDespesa.SelecionarPorId(id);
 
             if (despesaResult.IsSuccess)
-            {
-                var despesaVM = new VisualizarDespesaViewModel();
-
-                var despesa = despesaResult.Value;
-
-                despesaVM.Id = despesa.Id;
-                despesaVM.Descricao = despesa.Descricao;
-                despesaVM.Valor = despesa.Valor;
-                despesaVM.Data = despesa.Data;
-                despesaVM.FormaPagamento = despesa.FormaPagamento.GetDescription();
-
-                foreach (var item in despesa.Categorias)
-                {
-                    despesaVM.Categorias.Add(
-                        new VisualizarCategoriaViewModel { Titulo = item.Titulo });
-                }
-                return despesaVM;
-            }
+                return mapeadorDespesa.Map<VisualizarDespesaViewModel>(despesaResult.Value);
 
             return null;
         }
 
         [HttpPost]
-        public FormsDespesaViewModel Inserir(FormsDespesaViewModel despesaVM)
+        public FormsDespesaViewModel Inserir(InserirDespesaViewModel despesaVM)
         {
-            var despesa = new Despesa();
+            var despesa = mapeadorDespesa.Map<Despesa>(despesaVM);
 
-            despesa.Descricao = despesaVM.Descricao;
-            despesa.Valor = despesaVM.Valor;
-            despesa.Data = despesaVM.Data;
-            despesa.FormaPagamento = despesaVM.FormaPagamento;
+            //despesa.Descricao = despesaVM.Descricao;
+            //despesa.Valor = despesaVM.Valor;
+            //despesa.Data = despesaVM.Data;
+            //despesa.FormaPagamento = despesaVM.FormaPagamento;
 
-            foreach (var item in despesaVM.Categorias)
-            {
-                var categoria = new Categoria();
+            //foreach (var item in despesaVM.Categorias)
+            //{
+            //    var categoria = new Categoria();
 
-                categoria.Titulo = item.Titulo;
+            //    categoria.Titulo = item.Titulo;
 
-                despesa.AtribuirCategoria(categoria);
-            }
+            //    despesa.AtribuirCategoria(categoria);
+            //}
 
             var despesaResult = servicoDespesa.Inserir(despesa);
 
@@ -110,32 +75,34 @@ namespace eAgenda.Webapi.Controllers
         }
 
         [HttpPut("{id:guid}")]
-        public FormsDespesaViewModel Editar(Guid id, FormsDespesaViewModel despesaVM)
+        public FormsDespesaViewModel Editar(Guid id, EditarDespesaViewModel despesaVM)
         {
-            var despesaEditada = servicoDespesa.SelecionarPorId(id).Value;
+            var despesaSelecionada = servicoDespesa.SelecionarPorId(id).Value;
 
-            despesaEditada.Descricao = despesaVM.Descricao;
-            despesaEditada.Valor = despesaVM.Valor;
-            despesaEditada.Data = despesaVM.Data;
-            despesaEditada.FormaPagamento = despesaVM.FormaPagamento;
+            var despesa = mapeadorDespesa.Map(despesaVM, despesaSelecionada);
 
-            foreach (var item in despesaVM.Categorias)
-            {
-                if (item.Status == StatusCategoriaEnum.Adicionada)
-                {
-                    var categoria = new Categoria();
+            //despesaEditada.Descricao = despesaVM.Descricao;
+            //despesaEditada.Valor = despesaVM.Valor;
+            //despesaEditada.Data = despesaVM.Data;
+            //despesaEditada.FormaPagamento = despesaVM.FormaPagamento;
 
-                    categoria.Titulo = item.Titulo;
+            //foreach (var item in despesaVM.Categorias)
+            //{
+            //    if (item.Status == StatusCategoriaEnum.Adicionada)
+            //    {
+            //        var categoria = new Categoria();
 
-                    despesaEditada.AtribuirCategoria(categoria);
-                }
-                else if (item.Status == StatusCategoriaEnum.Removida)
-                {
-                    despesaEditada.RemoverCategoria(item.Id);
-                }
-            }
+            //        categoria.Titulo = item.Titulo;
 
-            var despesaResult = servicoDespesa.Editar(despesaEditada);
+            //        despesaEditada.AtribuirCategoria(categoria);
+            //    }
+            //    else if (item.Status == StatusCategoriaEnum.Removida)
+            //    {
+            //        despesaEditada.RemoverCategoria(item.Id);
+            //    }
+            //}
+
+            var despesaResult = servicoDespesa.Editar(despesa);
 
             if (despesaResult.IsSuccess)
                 return despesaVM;
