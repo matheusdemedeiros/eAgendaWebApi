@@ -1,13 +1,7 @@
 ﻿using AutoMapper;
 using eAgenda.Aplicacao.ModuloCompromisso;
-using eAgenda.Dominio.Compartilhado;
 using eAgenda.Dominio.ModuloCompromisso;
-using eAgenda.Dominio.ModuloContato;
-using eAgenda.Infra.Configs;
-using eAgenda.Infra.Orm;
-using eAgenda.Infra.Orm.ModuloCompromisso;
 using eAgenda.Webapi.ViewModels.ModuloCompromisso;
-using eAgenda.Webapi.ViewModels.ModuloContato;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -19,35 +13,12 @@ namespace eAgenda.Webapi.Controllers
     public class CompromissosController : ControllerBase
     {
         private readonly ServicoCompromisso servicoCompromisso;
-        private IMapper mapeadorCompromissos;
+        private readonly IMapper mapeadorCompromissos;
 
-        public CompromissosController()
+        public CompromissosController(ServicoCompromisso servicoCompromisso, IMapper mapeadorCompromissos)
         {
-            var config = new ConfiguracaoAplicacaoeAgenda();
-            var eAgendaDbContext = new eAgendaDbContext(config.ConnectionStrings);
-            var repositorioCompromisso = new RepositorioCompromissoOrm(eAgendaDbContext);
-            servicoCompromisso = new ServicoCompromisso(repositorioCompromisso, eAgendaDbContext);
-
-            var autoMapperConfig = new MapperConfiguration(config =>
-            {
-                config.CreateMap<Contato, VisualizarContatoViewModel>();
-
-                config.CreateMap<FormsContatoViewModel, Contato>();
-
-                config.CreateMap<Compromisso, ListarCompromissoViewModel>();
-
-                config.CreateMap<Compromisso, VisualizarCompromissoViewModel>()
-                .ForMember(destino => destino.TipoLocalizacao,
-                opt => opt.MapFrom(origem => origem.TipoLocal.GetDescription()));
-
-
-                config.CreateMap<FormsCompromissoViewModel, Compromisso>();
-
-            });
-
-            mapeadorCompromissos = autoMapperConfig.CreateMapper();
-
-
+            this.servicoCompromisso = servicoCompromisso;
+            this.mapeadorCompromissos = mapeadorCompromissos;
         }
 
         [HttpGet]
