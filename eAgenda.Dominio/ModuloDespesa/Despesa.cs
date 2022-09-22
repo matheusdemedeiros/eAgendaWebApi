@@ -57,5 +57,12 @@ namespace eAgenda.Dominio.ModuloDespesa
                 Categorias.Remove(categoria);
             }
         }
+
+        public void RemoverCategoria(Guid categoriaId)
+        {
+            var categoria = Categorias.Find(x => x.Id.Equals(categoriaId));
+
+            Categorias.Remove(categoria);
+        }
     }
 }
