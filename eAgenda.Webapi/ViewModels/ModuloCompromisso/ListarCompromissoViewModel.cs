@@ -9,6 +9,6 @@ namespace eAgenda.Webapi.ViewModels.ModuloCompromisso
         public string Assunto { get; set; }
         public DateTime Data { get; set; }
         public TimeSpan HoraInicio { get; set; }
-        public VisualizarContatoViewModel? Contato { get; set; }
+        public VisualizarContatoViewModel Contato { get; set; }
     }
 }

@@ -11,7 +11,7 @@ namespace eAgenda.Webapi.ViewModels.ModuloCompromisso
         public DateTime Data { get; set; }
         public TimeSpan HoraInicio { get; set; }
         public TimeSpan HoraTermino { get; set; }
-        public FormsContatoViewModel? Contato { get; set; }
+        public FormsContatoViewModel Contato { get; set; }
         public  TipoLocalizacaoCompromissoEnum TipoLocal { get; set; }
         public string Local { get; set; }
         public string Link { get; set; }
