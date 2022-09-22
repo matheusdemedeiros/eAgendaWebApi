@@ -16,26 +16,12 @@ namespace eAgenda.Webapi.Controllers
     public class ContatosController : ControllerBase
     {
         private readonly ServicoContato servicoContato;
-        private IMapper mapeadorContatos;
+        private readonly IMapper mapeadorContatos;
 
-        public ContatosController()
+        public ContatosController(ServicoContato servicoContato, IMapper mapeadorContatos)
         {
-            var config = new ConfiguracaoAplicacaoeAgenda();
-            var eAgendaDbContext = new eAgendaDbContext(config.ConnectionStrings);
-            var repositorioContato = new RepositorioContatoOrm(eAgendaDbContext);
-            servicoContato = new ServicoContato(repositorioContato, eAgendaDbContext);
-
-            var autoMapperConfig = new MapperConfiguration(config =>
-            {
-                config.CreateMap<Contato, ListarContatoViewModel>();
-
-                config.CreateMap<Contato, VisualizarContatoViewModel>();
-
-                config.CreateMap<FormsContatoViewModel, Contato>();
-
-            });
-
-            mapeadorContatos = autoMapperConfig.CreateMapper();
+            this.servicoContato = servicoContato;
+            this.mapeadorContatos = mapeadorContatos;
         }
 
         [HttpGet]
