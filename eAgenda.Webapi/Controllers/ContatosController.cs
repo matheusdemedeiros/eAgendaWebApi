@@ -1,4 +1,5 @@
-﻿using eAgenda.Aplicacao.ModuloContato;
+﻿using AutoMapper;
+using eAgenda.Aplicacao.ModuloContato;
 using eAgenda.Dominio.ModuloContato;
 using eAgenda.Infra.Configs;
 using eAgenda.Infra.Orm;
@@ -15,6 +16,7 @@ namespace eAgenda.Webapi.Controllers
     public class ContatosController : ControllerBase
     {
         private readonly ServicoContato servicoContato;
+        private IMapper mapeadorContatos;
 
         public ContatosController()
         {
@@ -22,6 +24,18 @@ namespace eAgenda.Webapi.Controllers
             var eAgendaDbContext = new eAgendaDbContext(config.ConnectionStrings);
             var repositorioContato = new RepositorioContatoOrm(eAgendaDbContext);
             servicoContato = new ServicoContato(repositorioContato, eAgendaDbContext);
+
+            var autoMapperConfig = new MapperConfiguration(config =>
+            {
+                config.CreateMap<Contato, ListarContatoViewModel>();
+
+                config.CreateMap<Contato, VisualizarContatoViewModel>();
+
+                config.CreateMap<FormsContatoViewModel, Contato>();
+
+            });
+
+            mapeadorContatos = autoMapperConfig.CreateMapper();
         }
 
         [HttpGet]
@@ -31,26 +45,8 @@ namespace eAgenda.Webapi.Controllers
 
             if (contatoResult.IsSuccess)
             {
+                return mapeadorContatos.Map<List<ListarContatoViewModel>>(contatoResult.Value);
 
-                var contatosGravados = contatoResult.Value;
-
-                var listagemContatos = new List<ListarContatoViewModel>();
-
-                foreach (var item in contatosGravados)
-                {
-                    listagemContatos.Add(
-                        new ListarContatoViewModel()
-                        {
-                            Id = item.Id,
-                            Nome = item.Nome,
-                            Email = item.Email,
-                            Telefone = item.Telefone
-                        }
-                    );
-                }
-
-
-                return listagemContatos;
             }
 
             return null;
@@ -63,18 +59,7 @@ namespace eAgenda.Webapi.Controllers
 
             if (contatoResult.IsSuccess)
             {
-                var contatoVM = new VisualizarContatoViewModel();
-
-                var contato = contatoResult.Value;
-
-                contatoVM.Id = contato.Id;
-                contatoVM.Nome = contato.Nome;
-                contatoVM.Email = contato.Email;
-                contatoVM.Telefone = contato.Telefone;
-                contatoVM.Empresa = contato.Empresa;
-                contatoVM.Cargo = contato.Cargo;
-
-                return contatoVM;
+                return mapeadorContatos.Map<VisualizarContatoViewModel>(contatoResult.Value);
             }
 
             return null;
@@ -83,13 +68,7 @@ namespace eAgenda.Webapi.Controllers
         [HttpPost]
         public FormsContatoViewModel Inserir(FormsContatoViewModel contatoVM)
         {
-            var contato = new Contato();
-
-            contato.Nome = contatoVM.Nome;
-            contato.Email = contatoVM.Email;
-            contato.Telefone = contatoVM.Telefone;
-            contato.Empresa = contatoVM.Empresa;
-            contato.Cargo = contatoVM.Cargo;
+            var contato = mapeadorContatos.Map<Contato>(contatoVM);
 
             var contatoResult = servicoContato.Inserir(contato);
 
@@ -102,15 +81,11 @@ namespace eAgenda.Webapi.Controllers
         [HttpPut("{id:guid}")]
         public FormsContatoViewModel Editar(Guid id, FormsContatoViewModel contatoVM)
         {
-            var contatoEditado = servicoContato.SelecionarPorId(id).Value;
+            var contatoSelecionado = servicoContato.SelecionarPorId(id).Value;
 
-            contatoEditado.Nome = contatoVM.Nome;
-            contatoEditado.Email = contatoVM.Email;
-            contatoEditado.Telefone = contatoVM.Telefone;
-            contatoEditado.Empresa = contatoVM.Empresa;
-            contatoEditado.Cargo = contatoVM.Cargo;
+            var contato = mapeadorContatos.Map(contatoVM, contatoSelecionado);
 
-            var contatoResult = servicoContato.Editar(contatoEditado);
+            var contatoResult = servicoContato.Editar(contato);
 
             if (contatoResult.IsSuccess)
                 return contatoVM;
