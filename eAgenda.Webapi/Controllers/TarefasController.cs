@@ -76,6 +76,19 @@ namespace eAgenda.Webapi.Controllers
         [HttpPost]
         public ActionResult<FormsTarefaViewModel> Inserir(InserirTarefaViewModel tarefaVM)
         {
+            var listaErros = ModelState.Values
+                .SelectMany(x => x.Errors)
+                .Select(x => x.ErrorMessage);
+
+            if (listaErros.Any())
+            {
+                return BadRequest(new
+                {
+                    sucesso = false,
+                    erros = listaErros.ToList()
+                });
+            }
+
             var tarefa = mapeadorTarefas.Map<Tarefa>(tarefaVM);
 
             var tarefaResult = servicoTarefa.Inserir(tarefa);
@@ -92,18 +105,41 @@ namespace eAgenda.Webapi.Controllers
             return Ok(new
             {
                 sucesso = true,
-                dadosInseridos = tarefaVM
+                dados = tarefaVM
             });
         }
 
         [HttpPut("{id:guid}")]
         public ActionResult<FormsTarefaViewModel> Editar(Guid id, EditarTarefaViewModel tarefaVM)
         {
-            var tarefaSelecionada = servicoTarefa.SelecionarPorId(id).Value;
+            var listaErros = ModelState.Values
+                .SelectMany(x => x.Errors)
+                .Select(x => x.ErrorMessage);
 
-            var tarefa = mapeadorTarefas.Map(tarefaVM, tarefaSelecionada);
+            if (listaErros.Any())
+            {
+                return BadRequest(new
+                {
+                    sucesso = false,
+                    erros = listaErros.ToList()
+                });
+            }
 
-            var tarefaResult = servicoTarefa.Editar(tarefa);
+            var tarefaResult = servicoTarefa.SelecionarPorId(id);
+
+            if (tarefaResult.Errors.Any(x => x.Message.Contains("não encontrada")))
+            {
+                return NotFound(
+                    new
+                    {
+                        sucesso = false,
+                        erros = tarefaResult.Errors.Select(x => x.Message)
+                    });
+            }
+
+            var tarefa = mapeadorTarefas.Map(tarefaVM, tarefaResult.Value);
+
+            tarefaResult = servicoTarefa.Editar(tarefa);
 
             if (tarefaResult.IsFailed)
             {
@@ -117,7 +153,7 @@ namespace eAgenda.Webapi.Controllers
             return Ok(new
             {
                 sucesso = true,
-                dadosEditados = tarefaVM
+                dados = tarefaVM
             });
         }
 
@@ -125,6 +161,16 @@ namespace eAgenda.Webapi.Controllers
         public ActionResult Excluir(Guid id)
         {
             var tarefaResult = servicoTarefa.Excluir(id);
+
+            if (tarefaResult.Errors.Any(x => x.Message.Contains("não encontrada")))
+            {
+                return NotFound(
+                    new
+                    {
+                        sucesso = false,
+                        erros = tarefaResult.Errors.Select(x => x.Message)
+                    });
+            }
 
             if (tarefaResult.IsFailed)
             {
@@ -135,10 +181,7 @@ namespace eAgenda.Webapi.Controllers
                 });
             }
 
-            return Ok(new
-            {
-                sucesso = true
-            });
+            return NoContent();
         }
     }
 }
