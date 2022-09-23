@@ -19,11 +19,13 @@ namespace eAgenda.Webapi.Controllers
     {
         private readonly ServicoDespesa servicoDespesa;
         private readonly IMapper mapeadorDespesa;
+        private readonly IRepositorioCategoria repositorioCategoria;
 
-        public DespesaController(ServicoDespesa servicoDespesa, IMapper mapeadorDespesa)
+        public DespesaController(ServicoDespesa servicoDespesa, IMapper mapeadorDespesa, IRepositorioCategoria repositorioCategoria)
         {
             this.servicoDespesa = servicoDespesa;
             this.mapeadorDespesa = mapeadorDespesa;
+            this.repositorioCategoria = repositorioCategoria;
         }
 
         [HttpGet]
@@ -94,6 +96,11 @@ namespace eAgenda.Webapi.Controllers
             }
 
             var despesa = mapeadorDespesa.Map<Despesa>(despesaVM);
+
+            foreach (var item in despesaVM.CategoriasId)
+            {
+                despesa.AtribuirCategoria(repositorioCategoria.SelecionarPorId(item));
+            }
 
             var despesaResult = servicoDespesa.Inserir(despesa);
 

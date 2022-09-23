@@ -6,51 +6,41 @@ namespace eAgenda.Webapi.Config.AutoMapperConfig
 {
     public class DespesaProfile : Profile
     {
+        public IRepositorioCategoria RepositorioCategoria;
+
+
         public DespesaProfile()
         {
             ConverterViewModelParaEntidade();
 
             ConverterEntidadeParaViewModel();
-
         }
 
-        //Corrigir o erro de inserção duplicada na categoria
+
+        public DespesaProfile(IRepositorioCategoria repositorioCategoria)
+        {
+            RepositorioCategoria = repositorioCategoria;
+
+            ConverterViewModelParaEntidade();
+
+            ConverterEntidadeParaViewModel();
+        }
+
         private void ConverterEntidadeParaViewModel()
         {
             CreateMap<InserirDespesaViewModel, Despesa>()
                         .ForMember(destino => destino.Categorias, opt => opt.Ignore())
-                        .AfterMap((viewModel, despesa) =>
+                        .AfterMap((viewmodel, entidade ) =>
                         {
-                            foreach (var item in viewModel.Categorias)
-                            {
-                                var categoria = new Categoria();
-
-                                categoria.Titulo = item.Titulo;
-
-                                despesa.AtribuirCategoria(categoria);
-                            }
+                            //foreach (var item in viewmodel.CategoriasId)
+                            //{
+                            //    entidade.AtribuirCategoria(RepositorioCategoria.SelecionarPorId(item));
+                            //}
                         });
+                        
 
             CreateMap<EditarDespesaViewModel, Despesa>()
-            .ForMember(destino => destino.Categorias, opt => opt.Ignore())
-            .AfterMap((viewModel, despesa) =>
-            {
-                foreach (var item in viewModel.Categorias)
-                {
-                    if (item.Status == StatusCategoriaEnum.Adicionada)
-                    {
-                        var categoria = new Categoria();
-
-                        categoria.Titulo = item.Titulo;
-
-                        despesa.AtribuirCategoria(categoria);
-                    }
-                    else if (item.Status == StatusCategoriaEnum.Removida)
-                    {
-                        despesa.RemoverCategoria(item.Id);
-                    }
-                }
-            });
+            .ForMember(destino => destino.Categorias, opt => opt.Ignore());
         }
 
         private void ConverterViewModelParaEntidade()
@@ -58,6 +48,7 @@ namespace eAgenda.Webapi.Config.AutoMapperConfig
             CreateMap<Categoria, VisualizarCategoriaViewModel>();
             CreateMap<Despesa, ListarDespesaViewModel>();
             CreateMap<Despesa, VisualizarDespesaViewModel>();
+
         }
     }
 }

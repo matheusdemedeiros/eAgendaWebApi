@@ -1,3 +1,5 @@
+using AutoMapper;
+using AutoMapperBuilder.Extensions.DependencyInjection;
 using eAgenda.Aplicacao.ModuloCompromisso;
 using eAgenda.Aplicacao.ModuloContato;
 using eAgenda.Aplicacao.ModuloDespesa;
@@ -41,7 +43,9 @@ namespace eAgenda.Webapi
                 config.SuppressModelStateInvalidFilter = true;
             });
 
+
             services.AddSingleton((x) => new ConfiguracaoAplicacaoeAgenda().ConnectionStrings);
+            services.AddDbContext<eAgendaDbContext>();
             services.AddScoped<IContextoPersistencia, eAgendaDbContext>();
 
             services.AddScoped<IRepositorioTarefa, RepositorioTarefaOrm>();
@@ -53,17 +57,31 @@ namespace eAgenda.Webapi
             services.AddScoped<IRepositorioCompromisso, RepositorioCompromissoOrm>();
             services.AddTransient<ServicoCompromisso>();
 
+
+            services.AddScoped<IRepositorioCategoria, RepositorioCategoriaOrm>();
+
             services.AddScoped<IRepositorioDespesa, RepositorioDespesaOrm>();
             services.AddTransient<ServicoDespesa>();
 
 
+            services.AddAutoMapperBuilder(builder =>
+            {
+                builder.Profiles.Add(new DespesaProfile(services.BuildServiceProvider()
+                    .GetRequiredService<IRepositorioCategoria>()));
+
+            });
             services.AddAutoMapper(config =>
             {
                 config.AddProfile<TarefaProfile>();
                 config.AddProfile<ContatoProfile>();
                 config.AddProfile<CompromissoProfile>();
-                config.AddProfile<DespesaProfile>();
+                //config.AddProfile(new DespesaProfile(config.GetService<IRepositorioCategoria>()));
             });
+
+            //services.AddSingleton(provider => new MapperConfiguration(config =>
+            //{
+            //    config.AddProfile(new DespesaProfile(provider.GetService<IRepositorioCategoria>()));
+            //}));
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
