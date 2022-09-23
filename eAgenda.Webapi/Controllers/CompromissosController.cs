@@ -5,6 +5,7 @@ using eAgenda.Webapi.ViewModels.ModuloCompromisso;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace eAgenda.Webapi.Controllers
 {
@@ -22,59 +23,167 @@ namespace eAgenda.Webapi.Controllers
         }
 
         [HttpGet]
-        public List<ListarCompromissoViewModel> SelecionarTodos()
+        public ActionResult<List<ListarCompromissoViewModel>> SelecionarTodos()
         {
+
             var compromissoResult = servicoCompromisso.SelecionarTodos();
 
-            if (compromissoResult.IsSuccess)
-                return mapeadorCompromissos.Map<List<ListarCompromissoViewModel>>(compromissoResult.Value);
+            if (compromissoResult.IsFailed)
+            {
+                return StatusCode(500, new
+                {
+                    sucesso = false,
+                    erros = compromissoResult.Errors.Select(x => x.Message)
+                });
+            }
 
-            return null;
+            return Ok(new
+            {
+                sucesso = true,
+                dados = mapeadorCompromissos.Map<List<ListarCompromissoViewModel>>(compromissoResult.Value)
+            });
         }
 
         [HttpGet("visualizar-completo/{id:guid}")]
-        public VisualizarCompromissoViewModel SelecionarPorId(Guid id)
+        public ActionResult<VisualizarCompromissoViewModel> SelecionarPorId(Guid id)
         {
+
             var compromissoResult = servicoCompromisso.SelecionarPorId(id);
 
-            if (compromissoResult.IsSuccess)
-                return mapeadorCompromissos.Map<VisualizarCompromissoViewModel>(compromissoResult.Value);
+            if (compromissoResult.Errors.Any(x => x.Message.Contains("não encontrado")))
+            {
+                return NotFound(new
+                {
+                    sucesso = false,
+                    erros = compromissoResult.Errors.Select(x => x.Message)
+                });
+            }
 
-            return null;
+            if (compromissoResult.IsFailed)
+            {
+                return StatusCode(500, new
+                {
+                    sucesso = false,
+                    erros = compromissoResult.Errors.Select(x => x.Message)
+                });
+            }
+
+            return Ok(new
+            {
+                sucesso = true,
+                dados = mapeadorCompromissos.Map<VisualizarCompromissoViewModel>(compromissoResult.Value)
+            });
         }
 
         [HttpPost]
-        public FormsCompromissoViewModel Inserir(FormsCompromissoViewModel compromissoVM)
+        public ActionResult<FormsCompromissoViewModel> Inserir(FormsCompromissoViewModel compromissoVM)
         {
-            var compromisso = mapeadorCompromissos.Map<Compromisso>(compromissoVM);
+            var listaErros = ModelState.Values
+                .SelectMany(x => x.Errors)
+                .Select(x => x.ErrorMessage);
+
+            if (listaErros.Any())
+            {
+                return BadRequest(new
+                {
+                    sucesso = false,
+                    erros = listaErros.ToList()
+                });
+            }
+
+            var compromisso = mapeadorCompromissos.Map <Compromisso>(compromissoVM);
 
             var compromissoResult = servicoCompromisso.Inserir(compromisso);
 
-            if (compromissoResult.IsSuccess)
-                return compromissoVM;
+            if (compromissoResult.IsFailed)
+            {
+                return StatusCode(500, new
+                {
+                    sucesso = false,
+                    erros = compromissoResult.Errors.Select(x => x.Message)
+                });
+            }
 
-            return null;
+            return Ok(new
+            {
+                sucesso = true,
+                dados = compromissoVM
+            });
         }
 
         [HttpPut("{id:guid}")]
-        public FormsCompromissoViewModel Editar(Guid id, FormsCompromissoViewModel compromissoVM)
+        public ActionResult<FormsCompromissoViewModel> Editar(Guid id, FormsCompromissoViewModel compromissoVM)
         {
-            var compromissoSelecionado = servicoCompromisso.SelecionarPorId(id).Value;
+            var listaErros = ModelState.Values
+                .SelectMany(x => x.Errors)
+                .Select(x => x.ErrorMessage);
 
-            var compromisso = mapeadorCompromissos.Map(compromissoVM, compromissoSelecionado);
-            
-            var compromissoResult = servicoCompromisso.Editar(compromisso);
+            if (listaErros.Any())
+            {
+                return BadRequest(new
+                {
+                    sucesso = false,
+                    erros = listaErros.ToList()
+                });
+            }
 
-            if (compromissoResult.IsSuccess)
-                return compromissoVM;
+            var compromissoResult = servicoCompromisso.SelecionarPorId(id);
 
-            return null;
+            if (compromissoResult.Errors.Any(x => x.Message.Contains("não encontrado")))
+            {
+                return NotFound(
+                    new
+                    {
+                        sucesso = false,
+                        erros = compromissoResult.Errors.Select(x => x.Message)
+                    });
+            }
+
+            var compromisso = mapeadorCompromissos.Map(compromissoVM, compromissoResult.Value);
+
+            compromissoResult = servicoCompromisso.Editar(compromisso);
+
+            if (compromissoResult.IsFailed)
+            {
+                return StatusCode(500, new
+                {
+                    sucesso = false,
+                    erros = compromissoResult.Errors.Select(x => x.Message)
+                });
+            }
+
+            return Ok(new
+            {
+                sucesso = true,
+                dados = compromissoVM
+            });
         }
 
         [HttpDelete("{id:guid}")]
-        public void Excluir(Guid id)
+        public ActionResult Excluir(Guid id)
         {
-            servicoCompromisso.Excluir(id);
+            var compromissoResult = servicoCompromisso.Excluir(id);
+
+            if (compromissoResult.Errors.Any(x => x.Message.Contains("não encontrado")))
+            {
+                return NotFound(
+                    new
+                    {
+                        sucesso = false,
+                        erros = compromissoResult.Errors.Select(x => x.Message)
+                    });
+            }
+
+            if (compromissoResult.IsFailed)
+            {
+                return StatusCode(500, new
+                {
+                    sucesso = false,
+                    erros = compromissoResult.Errors.Select(x => x.Message)
+                });
+            }
+
+            return NoContent();
         }
     }
 }
