@@ -5,6 +5,7 @@ using eAgenda.Webapi.ViewModels.ModuloTarefa;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace eAgenda.Webapi.Controllers
 {
@@ -13,7 +14,6 @@ namespace eAgenda.Webapi.Controllers
     public class TarefasController : ControllerBase
     {
         private readonly ServicoTarefa servicoTarefa;
-
         private readonly IMapper mapeadorTarefas;
 
         public TarefasController(ServicoTarefa servicoTarefa, IMapper mapeadorTarefas)
@@ -23,42 +23,81 @@ namespace eAgenda.Webapi.Controllers
         }
 
         [HttpGet]
-        public List<ListarTarefaViewModel> SelecionarTodos()
+        public ActionResult<List<ListarTarefaViewModel>> SelecionarTodos()
         {
             var tarefaResult = servicoTarefa.SelecionarTodos(StatusTarefaEnum.Todos);
 
-            if (tarefaResult.IsSuccess)
-                return mapeadorTarefas.Map<List<ListarTarefaViewModel>>(tarefaResult.Value);
+            if (tarefaResult.IsFailed)
+            {
+                return StatusCode(500, new
+                {
+                    sucesso = false,
+                    erros = tarefaResult.Errors.Select(x => x.Message)
+                });
+            }
 
-            return null;
+            return Ok(new
+            {
+                sucesso = true,
+                dados = mapeadorTarefas.Map<List<ListarTarefaViewModel>>(tarefaResult.Value)
+            });
         }
 
         [HttpGet("visualizar-completa/{id:guid}")]
-        public VisualizarTarefaViewModel SelecionarTarefaCompletaPorId(Guid id)
+        public ActionResult<VisualizarTarefaViewModel> SelecionarTarefaCompletaPorId(Guid id)
         {
             var tarefaResult = servicoTarefa.SelecionarPorId(id);
 
-            if (tarefaResult.IsSuccess)
-                return mapeadorTarefas.Map<VisualizarTarefaViewModel>(tarefaResult.Value);
+            if (tarefaResult.Errors.Any(x => x.Message.Contains("não encontrada")))
+            {
+                return NotFound(new
+                {
+                    sucesso = false,
+                    erros = tarefaResult.Errors.Select(x => x.Message)
+                });
+            }
 
-            return null;
+            if (tarefaResult.IsFailed)
+            {
+                return StatusCode(500, new
+                {
+                    sucesso = false,
+                    erros = tarefaResult.Errors.Select(x => x.Message)
+                });
+            }
+
+            return Ok(new
+            {
+                sucesso = true,
+                dados = mapeadorTarefas.Map<VisualizarTarefaViewModel>(tarefaResult.Value)
+            });
         }
 
         [HttpPost]
-        public FormsTarefaViewModel Inserir(InserirTarefaViewModel tarefaVM)
+        public ActionResult<FormsTarefaViewModel> Inserir(InserirTarefaViewModel tarefaVM)
         {
             var tarefa = mapeadorTarefas.Map<Tarefa>(tarefaVM);
 
             var tarefaResult = servicoTarefa.Inserir(tarefa);
 
-            if (tarefaResult.IsSuccess)
-                return tarefaVM;
+            if (tarefaResult.IsFailed)
+            {
+                return StatusCode(500, new
+                {
+                    sucesso = false,
+                    erros = tarefaResult.Errors.Select(x => x.Message)
+                });
+            }
 
-            return null;
+            return Ok(new
+            {
+                sucesso = true,
+                dadosInseridos = tarefaVM
+            });
         }
 
         [HttpPut("{id:guid}")]
-        public FormsTarefaViewModel Editar(Guid id, EditarTarefaViewModel tarefaVM)
+        public ActionResult<FormsTarefaViewModel> Editar(Guid id, EditarTarefaViewModel tarefaVM)
         {
             var tarefaSelecionada = servicoTarefa.SelecionarPorId(id).Value;
 
@@ -66,16 +105,40 @@ namespace eAgenda.Webapi.Controllers
 
             var tarefaResult = servicoTarefa.Editar(tarefa);
 
-            if (tarefaResult.IsSuccess)
-                return tarefaVM;
+            if (tarefaResult.IsFailed)
+            {
+                return StatusCode(500, new
+                {
+                    sucesso = false,
+                    erros = tarefaResult.Errors.Select(x => x.Message)
+                });
+            }
 
-            return null;
+            return Ok(new
+            {
+                sucesso = true,
+                dadosEditados = tarefaVM
+            });
         }
 
         [HttpDelete("{id:guid}")]
-        public void Excluir(Guid id)
+        public ActionResult Excluir(Guid id)
         {
-            servicoTarefa.Excluir(id);
+            var tarefaResult = servicoTarefa.Excluir(id);
+
+            if (tarefaResult.IsFailed)
+            {
+                return StatusCode(500, new
+                {
+                    sucesso = false,
+                    erros = tarefaResult.Errors.Select(x => x.Message)
+                });
+            }
+
+            return Ok(new
+            {
+                sucesso = true
+            });
         }
     }
 }
