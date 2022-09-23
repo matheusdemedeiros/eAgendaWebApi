@@ -9,6 +9,7 @@ using System;
 using eAgenda.Dominio.ModuloDespesa;
 using eAgenda.Dominio.Compartilhado;
 using AutoMapper;
+using System.Linq;
 
 namespace eAgenda.Webapi.Controllers
 {
@@ -26,31 +27,91 @@ namespace eAgenda.Webapi.Controllers
         }
 
         [HttpGet]
-        public List<ListarDespesaViewModel> SelecionarTodos()
+        public ActionResult<List<ListarDespesaViewModel>> SelecionarTodos()
         {
             var despesaResult = servicoDespesa.SelecionarTodos();
 
-            if (despesaResult.IsSuccess)
-                return mapeadorDespesa.Map<List<ListarDespesaViewModel>>(despesaResult.Value);
+            if (despesaResult.IsFailed)
+            {
+                return StatusCode(500, new
+                {
+                    sucesso = false,
+                    erros = despesaResult.Errors.Select(x => x.Message)
+                });
+            }
 
-            return null;
+            return Ok(new
+            {
+                sucesso = true,
+                dados = mapeadorDespesa.Map<List<ListarDespesaViewModel>>(despesaResult.Value)
+            });
         }
 
         [HttpGet("visualizar-completo/{id:guid}")]
-        public VisualizarDespesaViewModel SelecionarPorId(Guid id)
+        public ActionResult<VisualizarDespesaViewModel> SelecionarPorId(Guid id)
         {
             var despesaResult = servicoDespesa.SelecionarPorId(id);
 
-            if (despesaResult.IsSuccess)
-                return mapeadorDespesa.Map<VisualizarDespesaViewModel>(despesaResult.Value);
+            if (despesaResult.Errors.Any(x => x.Message.Contains("não encontrada")))
+            {
+                return NotFound(new
+                {
+                    sucesso = false,
+                    erros = despesaResult.Errors.Select(x => x.Message)
+                });
+            }
 
-            return null;
+            if (despesaResult.IsFailed)
+            {
+                return StatusCode(500, new
+                {
+                    sucesso = false,
+                    erros = despesaResult.Errors.Select(x => x.Message)
+                });
+            }
+
+            return Ok(new
+            {
+                sucesso = true,
+                dados = mapeadorDespesa.Map<VisualizarDespesaViewModel>(despesaResult.Value)
+            });
         }
 
         [HttpPost]
-        public FormsDespesaViewModel Inserir(InserirDespesaViewModel despesaVM)
+        public ActionResult<FormsDespesaViewModel> Inserir(InserirDespesaViewModel despesaVM)
         {
+            var listaErros = ModelState.Values
+                .SelectMany(x => x.Errors)
+                .Select(x => x.ErrorMessage);
+
+            if (listaErros.Any())
+            {
+                return BadRequest(new
+                {
+                    sucesso = false,
+                    erros = listaErros.ToList()
+                });
+            }
+
             var despesa = mapeadorDespesa.Map<Despesa>(despesaVM);
+
+            var despesaResult = servicoDespesa.Inserir(despesa);
+
+            if (despesaResult.IsFailed)
+            {
+                return StatusCode(500, new
+                {
+                    sucesso = false,
+                    erros = despesaResult.Errors.Select(x => x.Message)
+                });
+            }
+
+            return Ok(new
+            {
+                sucesso = true,
+                dados = despesaVM
+            });
+
 
             //despesa.Descricao = despesaVM.Descricao;
             //despesa.Valor = despesaVM.Valor;
@@ -65,21 +126,54 @@ namespace eAgenda.Webapi.Controllers
 
             //    despesa.AtribuirCategoria(categoria);
             //}
-
-            var despesaResult = servicoDespesa.Inserir(despesa);
-
-            if (despesaResult.IsSuccess)
-                return despesaVM;
-
-            return null;
         }
 
         [HttpPut("{id:guid}")]
-        public FormsDespesaViewModel Editar(Guid id, EditarDespesaViewModel despesaVM)
+        public ActionResult<FormsDespesaViewModel> Editar(Guid id, EditarDespesaViewModel despesaVM)
         {
-            var despesaSelecionada = servicoDespesa.SelecionarPorId(id).Value;
+            var listaErros = ModelState.Values
+                .SelectMany(x => x.Errors)
+                .Select(x => x.ErrorMessage);
 
-            var despesa = mapeadorDespesa.Map(despesaVM, despesaSelecionada);
+            if (listaErros.Any())
+            {
+                return BadRequest(new
+                {
+                    sucesso = false,
+                    erros = listaErros.ToList()
+                });
+            }
+
+            var despesaResult = servicoDespesa.SelecionarPorId(id);
+
+            if (despesaResult.Errors.Any(x => x.Message.Contains("não encontrada")))
+            {
+                return NotFound(
+                    new
+                    {
+                        sucesso = false,
+                        erros = despesaResult.Errors.Select(x => x.Message)
+                    });
+            }
+
+            var despesa = mapeadorDespesa.Map(despesaVM, despesaResult.Value);
+
+            despesaResult = servicoDespesa.Editar(despesa);
+
+            if (despesaResult.IsFailed)
+            {
+                return StatusCode(500, new
+                {
+                    sucesso = false,
+                    erros = despesaResult.Errors.Select(x => x.Message)
+                });
+            }
+
+            return Ok(new
+            {
+                sucesso = true,
+                dados = despesaVM
+            });
 
             //despesaEditada.Descricao = despesaVM.Descricao;
             //despesaEditada.Valor = despesaVM.Valor;
@@ -102,18 +196,34 @@ namespace eAgenda.Webapi.Controllers
             //    }
             //}
 
-            var despesaResult = servicoDespesa.Editar(despesa);
-
-            if (despesaResult.IsSuccess)
-                return despesaVM;
-
-            return null;
         }
 
         [HttpDelete("{id:guid}")]
-        public void Excluir(Guid id)
+        public ActionResult Excluir(Guid id)
         {
-            servicoDespesa.Excluir(id);
+
+            var despesaResult = servicoDespesa.Excluir(id);
+
+            if (despesaResult.Errors.Any(x => x.Message.Contains("não encontrada")))
+            {
+                return NotFound(
+                    new
+                    {
+                        sucesso = false,
+                        erros = despesaResult.Errors.Select(x => x.Message)
+                    });
+            }
+
+            if (despesaResult.IsFailed)
+            {
+                return StatusCode(500, new
+                {
+                    sucesso = false,
+                    erros = despesaResult.Errors.Select(x => x.Message)
+                });
+            }
+
+            return NoContent();
         }
     }
 }
