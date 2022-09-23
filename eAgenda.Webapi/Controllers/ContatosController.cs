@@ -1,13 +1,11 @@
 ﻿using AutoMapper;
 using eAgenda.Aplicacao.ModuloContato;
 using eAgenda.Dominio.ModuloContato;
-using eAgenda.Infra.Configs;
-using eAgenda.Infra.Orm;
-using eAgenda.Infra.Orm.ModuloContato;
 using eAgenda.Webapi.ViewModels.ModuloContato;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace eAgenda.Webapi.Controllers
 {
@@ -25,64 +23,169 @@ namespace eAgenda.Webapi.Controllers
         }
 
         [HttpGet]
-        public List<ListarContatoViewModel> SelecionarTodos()
+        public ActionResult<List<ListarContatoViewModel>> SelecionarTodos()
         {
             var contatoResult = servicoContato.SelecionarTodos();
 
-            if (contatoResult.IsSuccess)
+            if (contatoResult.IsFailed)
             {
-                return mapeadorContatos.Map<List<ListarContatoViewModel>>(contatoResult.Value);
-
+                return StatusCode(500, new
+                {
+                    sucesso = false,
+                    erros = contatoResult.Errors.Select(x => x.Message)
+                });
             }
 
-            return null;
+            return Ok(new
+            {
+                sucesso = true,
+                dados = mapeadorContatos.Map<List<ListarContatoViewModel>>(contatoResult.Value)
+            });
+            
         }
 
+
         [HttpGet("visualizar-completo/{id:guid}")]
-        public VisualizarContatoViewModel SelecionarPorId(Guid id)
+        public ActionResult<VisualizarContatoViewModel> SelecionarPorId(Guid id)
         {
+
             var contatoResult = servicoContato.SelecionarPorId(id);
 
-            if (contatoResult.IsSuccess)
+            if (contatoResult.Errors.Any(x => x.Message.Contains("não encontrado")))
             {
-                return mapeadorContatos.Map<VisualizarContatoViewModel>(contatoResult.Value);
+                return NotFound(new
+                {
+                    sucesso = false,
+                    erros = contatoResult.Errors.Select(x => x.Message)
+                });
             }
 
-            return null;
+            if (contatoResult.IsFailed)
+            {
+                return StatusCode(500, new
+                {
+                    sucesso = false,
+                    erros = contatoResult.Errors.Select(x => x.Message)
+                });
+            }
+
+            return Ok(new
+            {
+                sucesso = true,
+                dados = mapeadorContatos.Map<VisualizarContatoViewModel>(contatoResult.Value)
+            });
         }
 
         [HttpPost]
-        public FormsContatoViewModel Inserir(FormsContatoViewModel contatoVM)
+        public ActionResult<FormsContatoViewModel> Inserir(FormsContatoViewModel contatoVM)
         {
+            var listaErros = ModelState.Values
+        .SelectMany(x => x.Errors)
+        .Select(x => x.ErrorMessage);
+
+            if (listaErros.Any())
+            {
+                return BadRequest(new
+                {
+                    sucesso = false,
+                    erros = listaErros.ToList()
+                });
+            }
+
             var contato = mapeadorContatos.Map<Contato>(contatoVM);
 
             var contatoResult = servicoContato.Inserir(contato);
 
-            if (contatoResult.IsSuccess)
-                return contatoVM;
+            if (contatoResult.IsFailed)
+            {
+                return StatusCode(500, new
+                {
+                    sucesso = false,
+                    erros = contatoResult.Errors.Select(x => x.Message)
+                });
+            }
 
-            return null;
+            return Ok(new
+            {
+                sucesso = true,
+                dados = contatoVM
+            });
         }
 
         [HttpPut("{id:guid}")]
-        public FormsContatoViewModel Editar(Guid id, FormsContatoViewModel contatoVM)
+        public ActionResult<FormsContatoViewModel> Editar(Guid id, FormsContatoViewModel contatoVM)
         {
-            var contatoSelecionado = servicoContato.SelecionarPorId(id).Value;
+            var listaErros = ModelState.Values
+        .SelectMany(x => x.Errors)
+        .Select(x => x.ErrorMessage);
 
-            var contato = mapeadorContatos.Map(contatoVM, contatoSelecionado);
+            if (listaErros.Any())
+            {
+                return BadRequest(new
+                {
+                    sucesso = false,
+                    erros = listaErros.ToList()
+                });
+            }
 
-            var contatoResult = servicoContato.Editar(contato);
+            var contatoResult = servicoContato.SelecionarPorId(id);
 
-            if (contatoResult.IsSuccess)
-                return contatoVM;
+            if (contatoResult.Errors.Any(x => x.Message.Contains("não encontradoa")))
+            {
+                return NotFound(
+                    new
+                    {
+                        sucesso = false,
+                        erros = contatoResult.Errors.Select(x => x.Message)
+                    });
+            }
 
-            return null;
+            var tarefa = mapeadorContatos.Map(contatoVM, contatoResult.Value);
+
+            contatoResult = servicoContato.Editar(tarefa);
+
+            if (contatoResult.IsFailed)
+            {
+                return StatusCode(500, new
+                {
+                    sucesso = false,
+                    erros = contatoResult.Errors.Select(x => x.Message)
+                });
+            }
+
+            return Ok(new
+            {
+                sucesso = true,
+                dados = contatoVM
+            });
         }
 
         [HttpDelete("{id:guid}")]
-        public void Excluir(Guid id)
+        public ActionResult Excluir(Guid id)
         {
-            servicoContato.Excluir(id);
+
+            var tarefaResult = servicoContato.Excluir(id);
+
+            if (tarefaResult.Errors.Any(x => x.Message.Contains("não encontrado")))
+            {
+                return NotFound(
+                    new
+                    {
+                        sucesso = false,
+                        erros = tarefaResult.Errors.Select(x => x.Message)
+                    });
+            }
+
+            if (tarefaResult.IsFailed)
+            {
+                return StatusCode(500, new
+                {
+                    sucesso = false,
+                    erros = tarefaResult.Errors.Select(x => x.Message)
+                });
+            }
+
+            return NoContent();
         }
     }
 }
