@@ -130,7 +130,7 @@ namespace eAgenda.Webapi.Controllers
 
             var contatoResult = servicoContato.SelecionarPorId(id);
 
-            if (contatoResult.Errors.Any(x => x.Message.Contains("não encontradoa")))
+            if (contatoResult.Errors.Any(x => x.Message.Contains("não encontrado")))
             {
                 return NotFound(
                     new
@@ -140,9 +140,9 @@ namespace eAgenda.Webapi.Controllers
                     });
             }
 
-            var tarefa = mapeadorContatos.Map(contatoVM, contatoResult.Value);
+            var contato = mapeadorContatos.Map(contatoVM, contatoResult.Value);
 
-            contatoResult = servicoContato.Editar(tarefa);
+            contatoResult = servicoContato.Editar(contato);
 
             if (contatoResult.IsFailed)
             {
@@ -164,24 +164,24 @@ namespace eAgenda.Webapi.Controllers
         public ActionResult Excluir(Guid id)
         {
 
-            var tarefaResult = servicoContato.Excluir(id);
+            var contatoResult = servicoContato.Excluir(id);
 
-            if (tarefaResult.Errors.Any(x => x.Message.Contains("não encontrado")))
+            if (contatoResult.Errors.Any(x => x.Message.Contains("não encontrado")))
             {
                 return NotFound(
                     new
                     {
                         sucesso = false,
-                        erros = tarefaResult.Errors.Select(x => x.Message)
+                        erros = contatoResult.Errors.Select(x => x.Message)
                     });
             }
 
-            if (tarefaResult.IsFailed)
+            if (contatoResult.IsFailed)
             {
                 return StatusCode(500, new
                 {
                     sucesso = false,
-                    erros = tarefaResult.Errors.Select(x => x.Message)
+                    erros = contatoResult.Errors.Select(x => x.Message)
                 });
             }
 
