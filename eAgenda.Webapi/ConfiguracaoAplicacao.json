@@ -2,7 +2,7 @@
   "VersaoSistema": "2.0",
 
   "ConfiguracaoLogs": {
-    "DiretorioSaida": "D:\\logs\\GeradorTestes"
+    "DiretorioSaida": "D:\\logs\\eAgenda"
   },
 
   "ConnectionStrings": {
