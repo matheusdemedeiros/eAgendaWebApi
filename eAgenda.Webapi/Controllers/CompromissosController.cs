@@ -11,7 +11,7 @@ namespace eAgenda.Webapi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CompromissosController : ControllerBase
+    public class CompromissosController : eAgendaControllerBase
     {
         private readonly ServicoCompromisso servicoCompromisso;
         private readonly IMapper mapeadorCompromissos;
@@ -25,17 +25,10 @@ namespace eAgenda.Webapi.Controllers
         [HttpGet]
         public ActionResult<List<ListarCompromissoViewModel>> SelecionarTodos()
         {
-
             var compromissoResult = servicoCompromisso.SelecionarTodos();
 
             if (compromissoResult.IsFailed)
-            {
-                return StatusCode(500, new
-                {
-                    sucesso = false,
-                    erros = compromissoResult.Errors.Select(x => x.Message)
-                });
-            }
+                return InternalError(compromissoResult);
 
             return Ok(new
             {
@@ -47,26 +40,13 @@ namespace eAgenda.Webapi.Controllers
         [HttpGet("visualizar-completo/{id:guid}")]
         public ActionResult<VisualizarCompromissoViewModel> SelecionarPorId(Guid id)
         {
-
             var compromissoResult = servicoCompromisso.SelecionarPorId(id);
 
-            if (compromissoResult.Errors.Any(x => x.Message.Contains("não encontrado")))
-            {
-                return NotFound(new
-                {
-                    sucesso = false,
-                    erros = compromissoResult.Errors.Select(x => x.Message)
-                });
-            }
+            if (compromissoResult.IsFailed && RegistroNaoEncontrado(compromissoResult, "não encontrado"))
+                return NotFound();
 
             if (compromissoResult.IsFailed)
-            {
-                return StatusCode(500, new
-                {
-                    sucesso = false,
-                    erros = compromissoResult.Errors.Select(x => x.Message)
-                });
-            }
+                return InternalError(compromissoResult);
 
             return Ok(new
             {
@@ -96,13 +76,7 @@ namespace eAgenda.Webapi.Controllers
             var compromissoResult = servicoCompromisso.Inserir(compromisso);
 
             if (compromissoResult.IsFailed)
-            {
-                return StatusCode(500, new
-                {
-                    sucesso = false,
-                    erros = compromissoResult.Errors.Select(x => x.Message)
-                });
-            }
+                return InternalError(compromissoResult);
 
             return Ok(new
             {
@@ -129,28 +103,15 @@ namespace eAgenda.Webapi.Controllers
 
             var compromissoResult = servicoCompromisso.SelecionarPorId(id);
 
-            if (compromissoResult.Errors.Any(x => x.Message.Contains("não encontrado")))
-            {
-                return NotFound(
-                    new
-                    {
-                        sucesso = false,
-                        erros = compromissoResult.Errors.Select(x => x.Message)
-                    });
-            }
-
+            if (compromissoResult.IsFailed && RegistroNaoEncontrado(compromissoResult, "não encontrado"))
+                return NotFound();
+            
             var compromisso = mapeadorCompromissos.Map(compromissoVM, compromissoResult.Value);
 
             compromissoResult = servicoCompromisso.Editar(compromisso);
 
             if (compromissoResult.IsFailed)
-            {
-                return StatusCode(500, new
-                {
-                    sucesso = false,
-                    erros = compromissoResult.Errors.Select(x => x.Message)
-                });
-            }
+                return InternalError(compromissoResult);
 
             return Ok(new
             {
@@ -164,24 +125,11 @@ namespace eAgenda.Webapi.Controllers
         {
             var compromissoResult = servicoCompromisso.Excluir(id);
 
-            if (compromissoResult.Errors.Any(x => x.Message.Contains("não encontrado")))
-            {
-                return NotFound(
-                    new
-                    {
-                        sucesso = false,
-                        erros = compromissoResult.Errors.Select(x => x.Message)
-                    });
-            }
+            if (compromissoResult.IsFailed && RegistroNaoEncontrado<Compromisso>(compromissoResult, "não encontrado"))
+                return NotFound();
 
             if (compromissoResult.IsFailed)
-            {
-                return StatusCode(500, new
-                {
-                    sucesso = false,
-                    erros = compromissoResult.Errors.Select(x => x.Message)
-                });
-            }
+                return InternalError<Compromisso>(compromissoResult);
 
             return NoContent();
         }
