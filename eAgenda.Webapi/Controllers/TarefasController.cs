@@ -11,7 +11,7 @@ namespace eAgenda.Webapi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TarefasController : ControllerBase
+    public class TarefasController : eAgendaControllerBase
     {
         private readonly ServicoTarefa servicoTarefa;
         private readonly IMapper mapeadorTarefas;
@@ -28,13 +28,7 @@ namespace eAgenda.Webapi.Controllers
             var tarefaResult = servicoTarefa.SelecionarTodos(StatusTarefaEnum.Todos);
 
             if (tarefaResult.IsFailed)
-            {
-                return StatusCode(500, new
-                {
-                    sucesso = false,
-                    erros = tarefaResult.Errors.Select(x => x.Message)
-                });
-            }
+                return InternalError(tarefaResult);
 
             return Ok(new
             {
@@ -43,28 +37,17 @@ namespace eAgenda.Webapi.Controllers
             });
         }
 
+
         [HttpGet("visualizar-completa/{id:guid}")]
         public ActionResult<VisualizarTarefaViewModel> SelecionarTarefaCompletaPorId(Guid id)
         {
             var tarefaResult = servicoTarefa.SelecionarPorId(id);
 
-            if (tarefaResult.Errors.Any(x => x.Message.Contains("não encontrada")))
-            {
-                return NotFound(new
-                {
-                    sucesso = false,
-                    erros = tarefaResult.Errors.Select(x => x.Message)
-                });
-            }
+            if (tarefaResult.IsFailed && RegistroNaoEncontrado(tarefaResult))
+                return NotFound(tarefaResult);
 
             if (tarefaResult.IsFailed)
-            {
-                return StatusCode(500, new
-                {
-                    sucesso = false,
-                    erros = tarefaResult.Errors.Select(x => x.Message)
-                });
-            }
+                return InternalError(tarefaResult);
 
             return Ok(new
             {
@@ -72,6 +55,7 @@ namespace eAgenda.Webapi.Controllers
                 dados = mapeadorTarefas.Map<VisualizarTarefaViewModel>(tarefaResult.Value)
             });
         }
+
 
         [HttpPost]
         public ActionResult<FormsTarefaViewModel> Inserir(InserirTarefaViewModel tarefaVM)
@@ -94,13 +78,7 @@ namespace eAgenda.Webapi.Controllers
             var tarefaResult = servicoTarefa.Inserir(tarefa);
 
             if (tarefaResult.IsFailed)
-            {
-                return StatusCode(500, new
-                {
-                    sucesso = false,
-                    erros = tarefaResult.Errors.Select(x => x.Message)
-                });
-            }
+                return InternalError(tarefaResult);
 
             return Ok(new
             {
@@ -127,28 +105,16 @@ namespace eAgenda.Webapi.Controllers
 
             var tarefaResult = servicoTarefa.SelecionarPorId(id);
 
-            if (tarefaResult.Errors.Any(x => x.Message.Contains("não encontrada")))
-            {
-                return NotFound(
-                    new
-                    {
-                        sucesso = false,
-                        erros = tarefaResult.Errors.Select(x => x.Message)
-                    });
-            }
+            if (tarefaResult.IsFailed && RegistroNaoEncontrado(tarefaResult))
+                return NotFound(tarefaResult);
 
             var tarefa = mapeadorTarefas.Map(tarefaVM, tarefaResult.Value);
 
             tarefaResult = servicoTarefa.Editar(tarefa);
 
+
             if (tarefaResult.IsFailed)
-            {
-                return StatusCode(500, new
-                {
-                    sucesso = false,
-                    erros = tarefaResult.Errors.Select(x => x.Message)
-                });
-            }
+                return InternalError(tarefaResult);
 
             return Ok(new
             {
@@ -162,24 +128,11 @@ namespace eAgenda.Webapi.Controllers
         {
             var tarefaResult = servicoTarefa.Excluir(id);
 
-            if (tarefaResult.Errors.Any(x => x.Message.Contains("não encontrada")))
-            {
-                return NotFound(
-                    new
-                    {
-                        sucesso = false,
-                        erros = tarefaResult.Errors.Select(x => x.Message)
-                    });
-            }
+            if (tarefaResult.IsFailed && RegistroNaoEncontrado<Tarefa>(tarefaResult))
+                return NotFound(tarefaResult);
 
             if (tarefaResult.IsFailed)
-            {
-                return StatusCode(500, new
-                {
-                    sucesso = false,
-                    erros = tarefaResult.Errors.Select(x => x.Message)
-                });
-            }
+                return InternalError<Tarefa>(tarefaResult);
 
             return NoContent();
         }
