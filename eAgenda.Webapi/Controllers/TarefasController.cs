@@ -43,7 +43,7 @@ namespace eAgenda.Webapi.Controllers
         {
             var tarefaResult = servicoTarefa.SelecionarPorId(id);
 
-            if (tarefaResult.IsFailed && RegistroNaoEncontrado(tarefaResult))
+            if (tarefaResult.IsFailed && RegistroNaoEncontrado(tarefaResult, "não encontrada"))
                 return NotFound(tarefaResult);
 
             if (tarefaResult.IsFailed)
@@ -105,7 +105,7 @@ namespace eAgenda.Webapi.Controllers
 
             var tarefaResult = servicoTarefa.SelecionarPorId(id);
 
-            if (tarefaResult.IsFailed && RegistroNaoEncontrado(tarefaResult))
+            if (tarefaResult.IsFailed && RegistroNaoEncontrado(tarefaResult, "não encontrada"))
                 return NotFound(tarefaResult);
 
             var tarefa = mapeadorTarefas.Map(tarefaVM, tarefaResult.Value);
@@ -128,7 +128,7 @@ namespace eAgenda.Webapi.Controllers
         {
             var tarefaResult = servicoTarefa.Excluir(id);
 
-            if (tarefaResult.IsFailed && RegistroNaoEncontrado<Tarefa>(tarefaResult))
+            if (tarefaResult.IsFailed && RegistroNaoEncontrado<Tarefa>(tarefaResult, "não encontrada"))
                 return NotFound(tarefaResult);
 
             if (tarefaResult.IsFailed)

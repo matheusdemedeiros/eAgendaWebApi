@@ -26,9 +26,9 @@ namespace eAgenda.Webapi.Controllers
             });
         }
 
-        protected static bool RegistroNaoEncontrado<T>(Result<T> registroResult)
+        protected static bool RegistroNaoEncontrado<T>(Result<T> registroResult, string textoProcurado)
         {
-            return registroResult.Errors.Any(x => x.Message.Contains("não encontrada"));
+            return registroResult.Errors.Any(x => x.Message.Contains(textoProcurado));
         }
     }
 }
