@@ -5,7 +5,6 @@ using eAgenda.Webapi.ViewModels.ModuloCompromisso;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace eAgenda.Webapi.Controllers
 {
@@ -58,19 +57,6 @@ namespace eAgenda.Webapi.Controllers
         [HttpPost]
         public ActionResult<FormsCompromissoViewModel> Inserir(FormsCompromissoViewModel compromissoVM)
         {
-            var listaErros = ModelState.Values
-                .SelectMany(x => x.Errors)
-                .Select(x => x.ErrorMessage);
-
-            if (listaErros.Any())
-            {
-                return BadRequest(new
-                {
-                    sucesso = false,
-                    erros = listaErros.ToList()
-                });
-            }
-
             var compromisso = mapeadorCompromissos.Map <Compromisso>(compromissoVM);
 
             var compromissoResult = servicoCompromisso.Inserir(compromisso);
@@ -88,19 +74,6 @@ namespace eAgenda.Webapi.Controllers
         [HttpPut("{id:guid}")]
         public ActionResult<FormsCompromissoViewModel> Editar(Guid id, FormsCompromissoViewModel compromissoVM)
         {
-            var listaErros = ModelState.Values
-                .SelectMany(x => x.Errors)
-                .Select(x => x.ErrorMessage);
-
-            if (listaErros.Any())
-            {
-                return BadRequest(new
-                {
-                    sucesso = false,
-                    erros = listaErros.ToList()
-                });
-            }
-
             var compromissoResult = servicoCompromisso.SelecionarPorId(id);
 
             if (compromissoResult.IsFailed && RegistroNaoEncontrado(compromissoResult, "não encontrado"))

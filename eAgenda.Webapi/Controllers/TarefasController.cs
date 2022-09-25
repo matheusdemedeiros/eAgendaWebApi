@@ -5,7 +5,6 @@ using eAgenda.Webapi.ViewModels.ModuloTarefa;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace eAgenda.Webapi.Controllers
 {
@@ -56,23 +55,9 @@ namespace eAgenda.Webapi.Controllers
             });
         }
 
-
         [HttpPost]
         public ActionResult<FormsTarefaViewModel> Inserir(InserirTarefaViewModel tarefaVM)
         {
-            var listaErros = ModelState.Values
-                .SelectMany(x => x.Errors)
-                .Select(x => x.ErrorMessage);
-
-            if (listaErros.Any())
-            {
-                return BadRequest(new
-                {
-                    sucesso = false,
-                    erros = listaErros.ToList()
-                });
-            }
-
             var tarefa = mapeadorTarefas.Map<Tarefa>(tarefaVM);
 
             var tarefaResult = servicoTarefa.Inserir(tarefa);
@@ -90,20 +75,7 @@ namespace eAgenda.Webapi.Controllers
         [HttpPut("{id:guid}")]
         public ActionResult<FormsTarefaViewModel> Editar(Guid id, EditarTarefaViewModel tarefaVM)
         {
-            var listaErros = ModelState.Values
-                .SelectMany(x => x.Errors)
-                .Select(x => x.ErrorMessage);
-
-            if (listaErros.Any())
-            {
-                return BadRequest(new
-                {
-                    sucesso = false,
-                    erros = listaErros.ToList()
-                });
-            }
-
-            var tarefaResult = servicoTarefa.SelecionarPorId(id);
+           var tarefaResult = servicoTarefa.SelecionarPorId(id);
 
             if (tarefaResult.IsFailed && RegistroNaoEncontrado(tarefaResult, "não encontrada"))
                 return NotFound(tarefaResult);

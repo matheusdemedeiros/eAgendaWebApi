@@ -16,6 +16,7 @@ using eAgenda.Infra.Orm.ModuloContato;
 using eAgenda.Infra.Orm.ModuloDespesa;
 using eAgenda.Infra.Orm.ModuloTarefa;
 using eAgenda.Webapi.Config.AutoMapperConfig;
+using eAgenda.Webapi.Filters;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -83,7 +84,11 @@ namespace eAgenda.Webapi
             //    config.AddProfile(new DespesaProfile(provider.GetService<IRepositorioCategoria>()));
             //}));
 
-            services.AddControllers();
+            services.AddControllers(config =>
+            {
+                config.Filters.Add(new ValidarViewModelActionFilter());
+            });
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "eAgenda.Webapi", Version = "v1" });

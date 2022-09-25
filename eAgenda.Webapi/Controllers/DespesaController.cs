@@ -5,7 +5,6 @@ using eAgenda.Webapi.ViewModels.ModuloDespesa;
 using System;
 using eAgenda.Dominio.ModuloDespesa;
 using AutoMapper;
-using System.Linq;
 
 namespace eAgenda.Webapi.Controllers
 {
@@ -60,19 +59,6 @@ namespace eAgenda.Webapi.Controllers
         [HttpPost]
         public ActionResult<FormsDespesaViewModel> Inserir(InserirDespesaViewModel despesaVM)
         {
-            var listaErros = ModelState.Values
-                .SelectMany(x => x.Errors)
-                .Select(x => x.ErrorMessage);
-
-            if (listaErros.Any())
-            {
-                return BadRequest(new
-                {
-                    sucesso = false,
-                    erros = listaErros.ToList()
-                });
-            }
-
             var despesa = mapeadorDespesa.Map<Despesa>(despesaVM);
 
             foreach (var item in despesaVM.CategoriasId)
@@ -110,19 +96,6 @@ namespace eAgenda.Webapi.Controllers
         [HttpPut("{id:guid}")]
         public ActionResult<FormsDespesaViewModel> Editar(Guid id, EditarDespesaViewModel despesaVM)
         {
-            var listaErros = ModelState.Values
-                .SelectMany(x => x.Errors)
-                .Select(x => x.ErrorMessage);
-
-            if (listaErros.Any())
-            {
-                return BadRequest(new
-                {
-                    sucesso = false,
-                    erros = listaErros.ToList()
-                });
-            }
-
             var despesaResult = servicoDespesa.SelecionarPorId(id);
 
             if (despesaResult.IsFailed && RegistroNaoEncontrado(despesaResult, "não encontrada"))

@@ -5,7 +5,6 @@ using eAgenda.Webapi.ViewModels.ModuloContato;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace eAgenda.Webapi.Controllers
 {
@@ -59,20 +58,7 @@ namespace eAgenda.Webapi.Controllers
         [HttpPost]
         public ActionResult<FormsContatoViewModel> Inserir(FormsContatoViewModel contatoVM)
         {
-            var listaErros = ModelState.Values
-                .SelectMany(x => x.Errors)
-                .Select(x => x.ErrorMessage);
-
-            if (listaErros.Any())
-            {
-                return BadRequest(new
-                {
-                    sucesso = false,
-                    erros = listaErros.ToList()
-                });
-            }
-
-            var contato = mapeadorContatos.Map<Contato>(contatoVM);
+           var contato = mapeadorContatos.Map<Contato>(contatoVM);
 
             var contatoResult = servicoContato.Inserir(contato);
 
@@ -89,19 +75,6 @@ namespace eAgenda.Webapi.Controllers
         [HttpPut("{id:guid}")]
         public ActionResult<FormsContatoViewModel> Editar(Guid id, FormsContatoViewModel contatoVM)
         {
-            var listaErros = ModelState.Values
-                .SelectMany(x => x.Errors)
-                .Select(x => x.ErrorMessage);
-
-            if (listaErros.Any())
-            {
-                return BadRequest(new
-                {
-                    sucesso = false,
-                    erros = listaErros.ToList()
-                });
-            }
-
             var contatoResult = servicoContato.SelecionarPorId(id);
 
             if (contatoResult.IsFailed && RegistroNaoEncontrado(contatoResult, "não encontrado"))
