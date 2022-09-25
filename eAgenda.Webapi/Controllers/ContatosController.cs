@@ -11,7 +11,7 @@ namespace eAgenda.Webapi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ContatosController : ControllerBase
+    public class ContatosController : eAgendaControllerBase
     {
         private readonly ServicoContato servicoContato;
         private readonly IMapper mapeadorContatos;
@@ -28,46 +28,26 @@ namespace eAgenda.Webapi.Controllers
             var contatoResult = servicoContato.SelecionarTodos();
 
             if (contatoResult.IsFailed)
-            {
-                return StatusCode(500, new
-                {
-                    sucesso = false,
-                    erros = contatoResult.Errors.Select(x => x.Message)
-                });
-            }
+                return InternalError(contatoResult);
 
             return Ok(new
             {
                 sucesso = true,
                 dados = mapeadorContatos.Map<List<ListarContatoViewModel>>(contatoResult.Value)
             });
-            
         }
 
 
         [HttpGet("visualizar-completo/{id:guid}")]
         public ActionResult<VisualizarContatoViewModel> SelecionarPorId(Guid id)
         {
-
             var contatoResult = servicoContato.SelecionarPorId(id);
 
-            if (contatoResult.Errors.Any(x => x.Message.Contains("não encontrado")))
-            {
-                return NotFound(new
-                {
-                    sucesso = false,
-                    erros = contatoResult.Errors.Select(x => x.Message)
-                });
-            }
+            if (contatoResult.IsFailed && RegistroNaoEncontrado(contatoResult, "não encontrado"))
+                return NotFound();
 
             if (contatoResult.IsFailed)
-            {
-                return StatusCode(500, new
-                {
-                    sucesso = false,
-                    erros = contatoResult.Errors.Select(x => x.Message)
-                });
-            }
+                return InternalError(contatoResult);
 
             return Ok(new
             {
@@ -80,8 +60,8 @@ namespace eAgenda.Webapi.Controllers
         public ActionResult<FormsContatoViewModel> Inserir(FormsContatoViewModel contatoVM)
         {
             var listaErros = ModelState.Values
-        .SelectMany(x => x.Errors)
-        .Select(x => x.ErrorMessage);
+                .SelectMany(x => x.Errors)
+                .Select(x => x.ErrorMessage);
 
             if (listaErros.Any())
             {
@@ -97,13 +77,7 @@ namespace eAgenda.Webapi.Controllers
             var contatoResult = servicoContato.Inserir(contato);
 
             if (contatoResult.IsFailed)
-            {
-                return StatusCode(500, new
-                {
-                    sucesso = false,
-                    erros = contatoResult.Errors.Select(x => x.Message)
-                });
-            }
+                return InternalError(contatoResult);
 
             return Ok(new
             {
@@ -116,8 +90,8 @@ namespace eAgenda.Webapi.Controllers
         public ActionResult<FormsContatoViewModel> Editar(Guid id, FormsContatoViewModel contatoVM)
         {
             var listaErros = ModelState.Values
-        .SelectMany(x => x.Errors)
-        .Select(x => x.ErrorMessage);
+                .SelectMany(x => x.Errors)
+                .Select(x => x.ErrorMessage);
 
             if (listaErros.Any())
             {
@@ -130,28 +104,15 @@ namespace eAgenda.Webapi.Controllers
 
             var contatoResult = servicoContato.SelecionarPorId(id);
 
-            if (contatoResult.Errors.Any(x => x.Message.Contains("não encontrado")))
-            {
-                return NotFound(
-                    new
-                    {
-                        sucesso = false,
-                        erros = contatoResult.Errors.Select(x => x.Message)
-                    });
-            }
+            if (contatoResult.IsFailed && RegistroNaoEncontrado(contatoResult, "não encontrado"))
+                return NotFound();
 
             var contato = mapeadorContatos.Map(contatoVM, contatoResult.Value);
 
             contatoResult = servicoContato.Editar(contato);
 
             if (contatoResult.IsFailed)
-            {
-                return StatusCode(500, new
-                {
-                    sucesso = false,
-                    erros = contatoResult.Errors.Select(x => x.Message)
-                });
-            }
+                return InternalError(contatoResult);
 
             return Ok(new
             {
@@ -163,27 +124,13 @@ namespace eAgenda.Webapi.Controllers
         [HttpDelete("{id:guid}")]
         public ActionResult Excluir(Guid id)
         {
-
             var contatoResult = servicoContato.Excluir(id);
 
-            if (contatoResult.Errors.Any(x => x.Message.Contains("não encontrado")))
-            {
-                return NotFound(
-                    new
-                    {
-                        sucesso = false,
-                        erros = contatoResult.Errors.Select(x => x.Message)
-                    });
-            }
+            if (contatoResult.IsFailed && RegistroNaoEncontrado<Contato>(contatoResult, "não encontrado"))
+                return NotFound();
 
             if (contatoResult.IsFailed)
-            {
-                return StatusCode(500, new
-                {
-                    sucesso = false,
-                    erros = contatoResult.Errors.Select(x => x.Message)
-                });
-            }
+                return InternalError<Contato>(contatoResult);
 
             return NoContent();
         }
