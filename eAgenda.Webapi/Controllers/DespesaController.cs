@@ -1,13 +1,9 @@
-﻿using eAgenda.Infra.Configs;
-using Microsoft.AspNetCore.Mvc;
-using eAgenda.Infra.Orm;
+﻿using Microsoft.AspNetCore.Mvc;
 using eAgenda.Aplicacao.ModuloDespesa;
-using eAgenda.Infra.Orm.ModuloDespesa;
 using System.Collections.Generic;
 using eAgenda.Webapi.ViewModels.ModuloDespesa;
 using System;
 using eAgenda.Dominio.ModuloDespesa;
-using eAgenda.Dominio.Compartilhado;
 using AutoMapper;
 using System.Linq;
 
@@ -15,7 +11,7 @@ namespace eAgenda.Webapi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class DespesaController : ControllerBase
+    public class DespesaController : eAgendaControllerBase
     {
         private readonly ServicoDespesa servicoDespesa;
         private readonly IMapper mapeadorDespesa;
@@ -34,13 +30,7 @@ namespace eAgenda.Webapi.Controllers
             var despesaResult = servicoDespesa.SelecionarTodos();
 
             if (despesaResult.IsFailed)
-            {
-                return StatusCode(500, new
-                {
-                    sucesso = false,
-                    erros = despesaResult.Errors.Select(x => x.Message)
-                });
-            }
+                return InternalError(despesaResult);
 
             return Ok(new
             {
@@ -54,23 +44,11 @@ namespace eAgenda.Webapi.Controllers
         {
             var despesaResult = servicoDespesa.SelecionarPorId(id);
 
-            if (despesaResult.Errors.Any(x => x.Message.Contains("não encontrada")))
-            {
-                return NotFound(new
-                {
-                    sucesso = false,
-                    erros = despesaResult.Errors.Select(x => x.Message)
-                });
-            }
+            if (despesaResult.IsFailed && RegistroNaoEncontrado(despesaResult, "não encontrada"))
+                return NotFound();
 
             if (despesaResult.IsFailed)
-            {
-                return StatusCode(500, new
-                {
-                    sucesso = false,
-                    erros = despesaResult.Errors.Select(x => x.Message)
-                });
-            }
+                return InternalError(despesaResult);
 
             return Ok(new
             {
@@ -105,13 +83,7 @@ namespace eAgenda.Webapi.Controllers
             var despesaResult = servicoDespesa.Inserir(despesa);
 
             if (despesaResult.IsFailed)
-            {
-                return StatusCode(500, new
-                {
-                    sucesso = false,
-                    erros = despesaResult.Errors.Select(x => x.Message)
-                });
-            }
+                return InternalError(despesaResult);
 
             return Ok(new
             {
@@ -153,28 +125,15 @@ namespace eAgenda.Webapi.Controllers
 
             var despesaResult = servicoDespesa.SelecionarPorId(id);
 
-            if (despesaResult.Errors.Any(x => x.Message.Contains("não encontrada")))
-            {
-                return NotFound(
-                    new
-                    {
-                        sucesso = false,
-                        erros = despesaResult.Errors.Select(x => x.Message)
-                    });
-            }
+            if (despesaResult.IsFailed && RegistroNaoEncontrado(despesaResult, "não encontrada"))
+                return NotFound();
 
             var despesa = mapeadorDespesa.Map(despesaVM, despesaResult.Value);
 
             despesaResult = servicoDespesa.Editar(despesa);
 
             if (despesaResult.IsFailed)
-            {
-                return StatusCode(500, new
-                {
-                    sucesso = false,
-                    erros = despesaResult.Errors.Select(x => x.Message)
-                });
-            }
+                return InternalError(despesaResult);
 
             return Ok(new
             {
@@ -208,28 +167,14 @@ namespace eAgenda.Webapi.Controllers
         [HttpDelete("{id:guid}")]
         public ActionResult Excluir(Guid id)
         {
-
             var despesaResult = servicoDespesa.Excluir(id);
 
-            if (despesaResult.Errors.Any(x => x.Message.Contains("não encontrada")))
-            {
-                return NotFound(
-                    new
-                    {
-                        sucesso = false,
-                        erros = despesaResult.Errors.Select(x => x.Message)
-                    });
-            }
+            if (despesaResult.IsFailed && RegistroNaoEncontrado<Despesa>(despesaResult,"não encontrada"))
+                return NotFound();
 
             if (despesaResult.IsFailed)
-            {
-                return StatusCode(500, new
-                {
-                    sucesso = false,
-                    erros = despesaResult.Errors.Select(x => x.Message)
-                });
-            }
-
+                return InternalError<Despesa>(despesaResult);
+            
             return NoContent();
         }
     }
