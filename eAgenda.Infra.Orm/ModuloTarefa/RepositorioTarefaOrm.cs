@@ -62,5 +62,10 @@ namespace eAgenda.Infra.Orm.ModuloTarefa
                    .Where(x => x.UsuarioId.Equals(usuarioId))
                    .ToList();
         }
+
+        public List<Tarefa> SelecionarTodos(Guid usuarioId)
+        {
+            return tarefas.ToList();
+        }
     }
 }
