@@ -24,7 +24,7 @@ namespace eAgenda.Webapi.Controllers
         [HttpGet]
         public ActionResult<List<ListarCompromissoViewModel>> SelecionarTodos()
         {
-            var compromissoResult = servicoCompromisso.SelecionarTodos();
+            var compromissoResult = servicoCompromisso.SelecionarTodos(UsuarioLogado.Id);
 
             if (compromissoResult.IsFailed)
                 return InternalError(compromissoResult);
@@ -58,6 +58,8 @@ namespace eAgenda.Webapi.Controllers
         public ActionResult<FormsCompromissoViewModel> Inserir(FormsCompromissoViewModel compromissoVM)
         {
             var compromisso = mapeadorCompromissos.Map <Compromisso>(compromissoVM);
+
+            compromisso.UsuarioId = UsuarioLogado.Id;
 
             var compromissoResult = servicoCompromisso.Inserir(compromisso);
 

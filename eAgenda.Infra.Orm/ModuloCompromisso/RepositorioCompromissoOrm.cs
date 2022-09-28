@@ -38,9 +38,17 @@ namespace eAgenda.Infra.Orm.ModuloCompromisso
             return compromissos.Include(x => x.Contato).SingleOrDefault(x => x.Id == id);
         }
 
+        public List<Compromisso> SelecionarTodos(Guid usuarioId = new Guid())
+        {
+            return compromissos.Include(x => x.Contato)
+                .Where(x => x.UsuarioId.Equals(usuarioId))
+                .ToList();
+        }
+
         public List<Compromisso> SelecionarTodos()
         {
-            return compromissos.Include(x => x.Contato).ToList();
+            return compromissos.Include(x => x.Contato)
+                .ToList();
         }
 
         public List<Compromisso> SelecionarCompromissosFuturos(DateTime dataInicial, DateTime dataFinal)

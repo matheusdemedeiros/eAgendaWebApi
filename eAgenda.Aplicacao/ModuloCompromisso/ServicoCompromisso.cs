@@ -117,13 +117,13 @@ namespace eAgenda.Aplicacao.ModuloCompromisso
             }
         }
 
-        public Result<List<Compromisso>> SelecionarTodos()
+        public Result<List<Compromisso>> SelecionarTodos(Guid guid = new Guid())
         {
             Log.Logger.Debug("Tentando selecionar compromissos...");
 
             try
             {
-                var compromissos = repositorioCompromisso.SelecionarTodos();
+                var compromissos = repositorioCompromisso.SelecionarTodos(guid);
 
                 Log.Logger.Information("Compromissos selecionados com sucesso");
 
