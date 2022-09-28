@@ -13,6 +13,8 @@ namespace eAgenda.Dominio.Compartilhado
 
         List<T> SelecionarTodos();
 
+        List<T> SelecionarTodos(Guid usuarioId);
+
         T SelecionarPorId(Guid numero);
     }
 }
