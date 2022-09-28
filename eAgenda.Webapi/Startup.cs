@@ -1,36 +1,13 @@
-using AutoMapper;
 using AutoMapperBuilder.Extensions.DependencyInjection;
-using eAgenda.Aplicacao.ModuloAutenticação;
-using eAgenda.Aplicacao.ModuloCompromisso;
-using eAgenda.Aplicacao.ModuloContato;
-using eAgenda.Aplicacao.ModuloDespesa;
-using eAgenda.Aplicacao.ModuloTarefa;
-using eAgenda.Dominio;
-using eAgenda.Dominio.ModuloAtutenticacao;
-using eAgenda.Dominio.ModuloCompromisso;
-using eAgenda.Dominio.ModuloContato;
 using eAgenda.Dominio.ModuloDespesa;
-using eAgenda.Dominio.ModuloTarefa;
-using eAgenda.Infra.Configs;
-using eAgenda.Infra.Orm;
-using eAgenda.Infra.Orm.ModuloCompromisso;
-using eAgenda.Infra.Orm.ModuloContato;
-using eAgenda.Infra.Orm.ModuloDespesa;
-using eAgenda.Infra.Orm.ModuloTarefa;
+using eAgenda.Webapi.Config;
 using eAgenda.Webapi.Config.AutoMapperConfig;
-using eAgenda.Webapi.Filters;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
-using System;
-using System.Text;
 
 namespace eAgenda.Webapi
 {
@@ -51,36 +28,7 @@ namespace eAgenda.Webapi
                 config.SuppressModelStateInvalidFilter = true;
             });
 
-
-            services.AddSingleton((x) => new ConfiguracaoAplicacaoeAgenda().ConnectionStrings);
-            services.AddDbContext<eAgendaDbContext>();
-            services.AddScoped<IContextoPersistencia, eAgendaDbContext>();
-            
-            services.AddScoped<eAgendaDbContext>();
-            
-            services.AddTransient<UserManager<Usuario>>();
-            services.AddTransient<SignInManager<Usuario>>();
-            services.AddIdentity<Usuario, IdentityRole<Guid>>()
-                .AddEntityFrameworkStores<eAgendaDbContext>()
-                .AddDefaultTokenProviders();
-
-            services.AddTransient<ServicoAutenticacao>();
-            
-            services.AddScoped<IRepositorioTarefa, RepositorioTarefaOrm>();
-            services.AddTransient<ServicoTarefa>();
-
-            services.AddScoped<IRepositorioContato, RepositorioContatoOrm>();
-            services.AddTransient<ServicoContato>();
-
-            services.AddScoped<IRepositorioCompromisso, RepositorioCompromissoOrm>();
-            services.AddTransient<ServicoCompromisso>();
-
-
-            services.AddScoped<IRepositorioCategoria, RepositorioCategoriaOrm>();
-
-            services.AddScoped<IRepositorioDespesa, RepositorioDespesaOrm>();
-            services.AddTransient<ServicoDespesa>();
-
+            //services.AddAutoMapper(typeof(Startup));
 
             services.AddAutoMapperBuilder(builder =>
             {
@@ -88,51 +36,20 @@ namespace eAgenda.Webapi
                     .GetRequiredService<IRepositorioCategoria>()));
 
             });
+
             services.AddAutoMapper(config =>
             {
                 config.AddProfile<TarefaProfile>();
                 config.AddProfile<ContatoProfile>();
                 config.AddProfile<CompromissoProfile>();
                 config.AddProfile<UsuarioProfile>();
-                //config.AddProfile(new DespesaProfile(config.GetService<IRepositorioCategoria>()));
             });
 
-            //services.AddSingleton(provider => new MapperConfiguration(config =>
-            //{
-            //    config.AddProfile(new DespesaProfile(provider.GetService<IRepositorioCategoria>()));
-            //}));
-
-            services.AddControllers(config =>
-            {
-                config.Filters.Add(new ValidarViewModelActionFilter());
-            });
-
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "eAgenda.Webapi", Version = "v1" });
-            });
-
-            var key = Encoding.ASCII.GetBytes("SegredoSuperSecretoDoeAgenda");
-
-            services.AddAuthentication(x =>
-            {
-                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-
-            }).AddJwtBearer(x =>
-            {
-                x.RequireHttpsMetadata = false;
-                x.SaveToken = true;
-
-                x.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidAudience = "http://localhost",
-                    ValidIssuer = "eAgenda"
-                };
-            });
-
+            services.ConfigurarInjecaoDependencia();
+            services.ConfigurarAutenticacao();
+            services.ConfigurarFiltros();
+            services.ConfigurarSwagger();
+            services.ConfigurarJwt();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
