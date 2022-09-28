@@ -1,4 +1,5 @@
-﻿using System;
+﻿using eAgenda.Dominio.ModuloAtutenticacao;
+using System;
 using Taikandi;
 
 namespace eAgenda.Dominio.Compartilhado
@@ -17,6 +18,10 @@ namespace eAgenda.Dominio.Compartilhado
         }
 
         public abstract void Atualizar(T registro);
+
+        public Guid UsuarioId { get; set; }
+
+        public Usuario Usuario { get; set; }
 
     }
 }

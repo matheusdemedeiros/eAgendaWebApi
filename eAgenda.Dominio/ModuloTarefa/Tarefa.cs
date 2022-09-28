@@ -31,7 +31,6 @@ namespace eAgenda.Dominio.ModuloTarefa
         public List<ItemTarefa> Itens { get { return itens; } }
         public decimal PercentualConcluido { get; set; }
 
-
         public void CalcularPercentualConcluido()
         {
             if (itens.Count == 0)
