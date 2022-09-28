@@ -129,13 +129,13 @@ namespace eAgenda.Aplicacao.ModuloDespesa
             }
         }
 
-        public Result<List<Despesa>> SelecionarTodos()
+        public Result<List<Despesa>> SelecionarTodos(Guid guid = new Guid())
         {
             Log.Logger.Debug("Tentando selecionar despesas...");
 
             try
             {
-                var despesas = repositorioDespesa.SelecionarTodos();
+                var despesas = repositorioDespesa.SelecionarTodos(guid);
 
                 Log.Logger.Information("Despesas selecionadas com sucesso");
 

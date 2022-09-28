@@ -26,7 +26,7 @@ namespace eAgenda.Webapi.Controllers
         [HttpGet]
         public ActionResult<List<ListarDespesaViewModel>> SelecionarTodos()
         {
-            var despesaResult = servicoDespesa.SelecionarTodos();
+            var despesaResult = servicoDespesa.SelecionarTodos(UsuarioLogado.Id);
 
             if (despesaResult.IsFailed)
                 return InternalError(despesaResult);
@@ -60,6 +60,8 @@ namespace eAgenda.Webapi.Controllers
         public ActionResult<FormsDespesaViewModel> Inserir(InserirDespesaViewModel despesaVM)
         {
             var despesa = mapeadorDespesa.Map<Despesa>(despesaVM);
+
+            despesa.UsuarioId = UsuarioLogado.Id;
 
             foreach (var item in despesaVM.CategoriasId)
             {

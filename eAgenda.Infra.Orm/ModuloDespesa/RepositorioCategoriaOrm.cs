@@ -48,5 +48,12 @@ namespace eAgenda.Infra.Orm.ModuloDespesa
             return categorias.ToList();
         }
 
+        public List<Categoria> SelecionarTodos(Guid usuarioId = new Guid())
+        {
+            return categorias
+                .Where(x => x.UsuarioId.Equals(usuarioId))
+                .ToList();
+
+        }
     }
 }

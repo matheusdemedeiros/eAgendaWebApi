@@ -50,9 +50,17 @@ namespace eAgenda.Infra.Orm.ModuloDespesa
                 .SingleOrDefault(x => x.Id == id);
         }
 
+        public List<Despesa> SelecionarTodos(Guid usuarioId = new Guid())
+        {
+            return despesas
+                .Where(x => x.UsuarioId.Equals(usuarioId))
+                .ToList();
+        }
+
         public List<Despesa> SelecionarTodos()
         {
-            return despesas.ToList();
+            return despesas
+                .ToList();
         }
     }
 }
