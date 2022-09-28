@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Security.Claims;
 
 namespace eAgenda.Webapi.Controllers
 {
@@ -26,7 +27,7 @@ namespace eAgenda.Webapi.Controllers
         [HttpGet]
         public ActionResult<List<ListarTarefaViewModel>> SelecionarTodos()
         {
-            var tarefaResult = servicoTarefa.SelecionarTodos(StatusTarefaEnum.Todos);
+            var tarefaResult = servicoTarefa.SelecionarTodos(StatusTarefaEnum.Todos, UsuarioLogado.Id);
 
             if (tarefaResult.IsFailed)
                 return InternalError(tarefaResult);
@@ -61,6 +62,8 @@ namespace eAgenda.Webapi.Controllers
         public ActionResult<FormsTarefaViewModel> Inserir(InserirTarefaViewModel tarefaVM)
         {
             var tarefa = mapeadorTarefas.Map<Tarefa>(tarefaVM);
+
+            tarefa.UsuarioId = UsuarioLogado.Id;
 
             var tarefaResult = servicoTarefa.Inserir(tarefa);
 
@@ -110,5 +113,7 @@ namespace eAgenda.Webapi.Controllers
 
             return NoContent();
         }
+
+
     }
 }
