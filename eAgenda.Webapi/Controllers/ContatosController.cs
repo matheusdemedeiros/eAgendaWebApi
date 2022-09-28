@@ -24,7 +24,7 @@ namespace eAgenda.Webapi.Controllers
         [HttpGet]
         public ActionResult<List<ListarContatoViewModel>> SelecionarTodos()
         {
-            var contatoResult = servicoContato.SelecionarTodos();
+            var contatoResult = servicoContato.SelecionarTodos(UsuarioLogado.Id);
 
             if (contatoResult.IsFailed)
                 return InternalError(contatoResult);
@@ -59,6 +59,8 @@ namespace eAgenda.Webapi.Controllers
         public ActionResult<FormsContatoViewModel> Inserir(FormsContatoViewModel contatoVM)
         {
            var contato = mapeadorContatos.Map<Contato>(contatoVM);
+
+            contato.UsuarioId = UsuarioLogado.Id;
 
             var contatoResult = servicoContato.Inserir(contato);
 

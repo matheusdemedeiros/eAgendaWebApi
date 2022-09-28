@@ -118,13 +118,13 @@ namespace eAgenda.Aplicacao.ModuloContato
             }
         }
 
-        public Result<List<Contato>> SelecionarTodos()
+        public Result<List<Contato>> SelecionarTodos(Guid guid = new Guid())
         {
             Log.Logger.Debug("Tentando selecionar contatos...");
 
             try
             {
-                var contatos = repositorioContato.SelecionarTodos();
+                var contatos = repositorioContato.SelecionarTodos(guid);
 
                 Log.Logger.Information("Contatos selecionados com sucesso");
 

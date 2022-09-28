@@ -42,12 +42,17 @@ namespace eAgenda.Infra.Orm.ModuloContato
         {
             return contatos.ToList();
         }
-
+        
         public List<Contato> SelecionarTodos()
         {
             return contatos.ToList();
         }
 
-
+        public List<Contato> SelecionarTodos(Guid usuarioId = new Guid())
+        {
+            return contatos
+                .Where(x => x.UsuarioId.Equals(usuarioId))
+                .ToList();
+        }
     }
 }
