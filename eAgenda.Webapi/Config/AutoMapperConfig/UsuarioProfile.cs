@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using eAgenda.Dominio.ModuloAtutenticacao;
+using eAgenda.Dominio.ModuloAutenticacao;
 using eAgenda.Webapi.ViewModels.ModuloAutenticacao;
 
 namespace eAgenda.Webapi.Config.AutoMapperConfig

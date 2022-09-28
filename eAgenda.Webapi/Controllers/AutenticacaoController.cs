@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using eAgenda.Aplicacao.ModuloAutenticação;
-using eAgenda.Dominio.ModuloAtutenticacao;
+using eAgenda.Dominio.ModuloAutenticacao;
 using eAgenda.Webapi.ViewModels.ModuloAutenticacao;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;

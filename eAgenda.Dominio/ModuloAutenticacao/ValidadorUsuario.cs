@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 
 
-namespace eAgenda.Dominio.ModuloAtutenticacao
+namespace eAgenda.Dominio.ModuloAutenticacao
 {
     public class ValidadorUsuario : AbstractValidator<Usuario>
     {

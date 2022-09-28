@@ -1,4 +1,4 @@
-﻿using eAgenda.Dominio.ModuloAtutenticacao;
+﻿using eAgenda.Dominio.ModuloAutenticacao;
 using FluentResults;
 using Microsoft.AspNetCore.Identity;
 using Serilog;

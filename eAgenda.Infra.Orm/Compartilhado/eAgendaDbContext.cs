@@ -1,5 +1,5 @@
 ﻿using eAgenda.Dominio;
-using eAgenda.Dominio.ModuloAtutenticacao;
+using eAgenda.Dominio.ModuloAutenticacao;
 using eAgenda.Infra.Configs;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;

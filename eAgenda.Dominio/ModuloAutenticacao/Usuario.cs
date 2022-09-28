@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace eAgenda.Dominio.ModuloAtutenticacao
+namespace eAgenda.Dominio.ModuloAutenticacao
 {
     public class Usuario : IdentityUser<Guid>
     {
