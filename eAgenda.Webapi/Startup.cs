@@ -28,22 +28,22 @@ namespace eAgenda.Webapi
                 config.SuppressModelStateInvalidFilter = true;
             });
 
-            //services.AddAutoMapper(typeof(Startup));
+            services.AddAutoMapper(typeof(Startup));
 
-            services.AddAutoMapperBuilder(builder =>
-            {
-                builder.Profiles.Add(new DespesaProfile(services.BuildServiceProvider()
-                    .GetRequiredService<IRepositorioCategoria>()));
+            //services.AddAutoMapperBuilder(builder =>
+            //{
+            //    builder.Profiles.Add(new DespesaProfile(services.BuildServiceProvider()
+            //        .GetRequiredService<IRepositorioCategoria>()));
 
-            });
+            //});
 
-            services.AddAutoMapper(config =>
-            {
-                config.AddProfile<TarefaProfile>();
-                config.AddProfile<ContatoProfile>();
-                config.AddProfile<CompromissoProfile>();
-                config.AddProfile<UsuarioProfile>();
-            });
+            //services.AddAutoMapper(config =>
+            //{
+            //    config.AddProfile<TarefaProfile>();
+            //    config.AddProfile<ContatoProfile>();
+            //    config.AddProfile<CompromissoProfile>();
+            //    config.AddProfile<UsuarioProfile>();
+            //});
 
             services.ConfigurarInjecaoDependencia();
             services.ConfigurarAutenticacao();
@@ -61,6 +61,8 @@ namespace eAgenda.Webapi
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "eAgenda.Webapi v1"));
             }
+
+            app.UseDeveloperExceptionPage();
 
             app.UseHttpsRedirection();
 
