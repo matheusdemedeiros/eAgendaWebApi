@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using eAgenda.Dominio.ModuloDespesa;
+using eAgenda.Webapi.ViewModels.ModuloCategoria;
 using eAgenda.Webapi.ViewModels.ModuloDespesa;
 
 namespace eAgenda.Webapi.Config.AutoMapperConfig
