@@ -5,11 +5,13 @@ using eAgenda.Webapi.ViewModels.ModuloDespesa;
 using System;
 using eAgenda.Dominio.ModuloDespesa;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 
 namespace eAgenda.Webapi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class DespesaController : eAgendaControllerBase
     {
         private readonly ServicoDespesa servicoDespesa;
