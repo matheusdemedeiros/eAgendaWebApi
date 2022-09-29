@@ -50,9 +50,10 @@ namespace eAgenda.Infra.Orm.ModuloContato
 
         public List<Contato> SelecionarTodos(Guid usuarioId = new Guid())
         {
-            return contatos
+            var resultado = contatos
                 .Where(x => x.UsuarioId.Equals(usuarioId))
                 .ToList();
+            return resultado ;
         }
     }
 }

@@ -361,3 +361,5 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/eAgenda.Webapi/token eAgenda api.html
+/select all tables.sql
