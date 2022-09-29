@@ -59,7 +59,7 @@ namespace eAgenda.Webapi.Controllers
         [HttpPost]
         public ActionResult<FormsCompromissoViewModel> Inserir(FormsCompromissoViewModel compromissoVM)
         {
-            var compromisso = mapeadorCompromissos.Map <Compromisso>(compromissoVM);
+            var compromisso = mapeadorCompromissos.Map<Compromisso>(compromissoVM);
 
             compromisso.UsuarioId = UsuarioLogado.Id;
 
@@ -82,7 +82,7 @@ namespace eAgenda.Webapi.Controllers
 
             if (compromissoResult.IsFailed && RegistroNaoEncontrado(compromissoResult, "não encontrado"))
                 return NotFound();
-            
+
             var compromisso = mapeadorCompromissos.Map(compromissoVM, compromissoResult.Value);
 
             compromissoResult = servicoCompromisso.Editar(compromisso);

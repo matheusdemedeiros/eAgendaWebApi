@@ -21,7 +21,7 @@ namespace eAgenda.Webapi.ViewModels.ModuloDespesa
 
         //[Required(ErrorMessage = "O campo {0} é obrigatório")]
         //public List<FormsCategoriaViewModel> Categorias { get; set; }
-       
+
         public List<Guid> CategoriasId { get; set; }
 
     }

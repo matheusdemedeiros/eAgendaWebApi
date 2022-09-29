@@ -25,7 +25,7 @@ namespace eAgenda.Webapi.Controllers
             this.servicoAutenticacao = servicoAutenticacao;
             this.mapeadorUsuario = mapeadorUsuario;
         }
-        
+
         [HttpPost("registrar")]
         public async Task<ActionResult> RegistrarUsuario(RegistrarUsuarioViewModel usuarioVM)
         {

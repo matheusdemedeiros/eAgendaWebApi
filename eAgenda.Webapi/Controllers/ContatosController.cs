@@ -60,7 +60,7 @@ namespace eAgenda.Webapi.Controllers
         [HttpPost]
         public ActionResult<FormsContatoViewModel> Inserir(FormsContatoViewModel contatoVM)
         {
-           var contato = mapeadorContatos.Map<Contato>(contatoVM);
+            var contato = mapeadorContatos.Map<Contato>(contatoVM);
 
             contato.UsuarioId = UsuarioLogado.Id;
 

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using eAgenda.Dominio.ModuloDespesa;
+using eAgenda.Webapi.Config.AutoMapperConfig.Resolvers;
 using eAgenda.Webapi.ViewModels.ModuloCategoria;
 using eAgenda.Webapi.ViewModels.ModuloDespesa;
 
@@ -30,15 +31,9 @@ namespace eAgenda.Webapi.Config.AutoMapperConfig
         private void ConverterEntidadeParaViewModel()
         {
             CreateMap<InserirDespesaViewModel, Despesa>()
-                        .ForMember(destino => destino.Categorias, opt => opt.Ignore())
-                        .AfterMap((viewmodel, entidade ) =>
-                        {
-                            //foreach (var item in viewmodel.CategoriasId)
-                            //{
-                            //    entidade.AtribuirCategoria(RepositorioCategoria.SelecionarPorId(item));
-                            //}
-                        });
-                        
+                .ForMember(destino => destino.Categorias,
+                opt => opt.MapFrom<CategoriaResolver>());
+
 
             CreateMap<EditarDespesaViewModel, Despesa>()
             .ForMember(destino => destino.Categorias, opt => opt.Ignore());

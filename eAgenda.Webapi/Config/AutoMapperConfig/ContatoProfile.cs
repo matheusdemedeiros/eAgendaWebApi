@@ -9,14 +9,14 @@ namespace eAgenda.Webapi.Config.AutoMapperConfig
         public ContatoProfile()
         {
             ConverterViewModelParaEntidade();
-            
+
             ConverterEntidadeParaViewModel();
         }
 
         private void ConverterEntidadeParaViewModel()
         {
             CreateMap<Contato, FormsContatoViewModel>();
-            
+
             CreateMap<Contato, ListarContatoViewModel>();
         }
 

@@ -21,12 +21,12 @@ namespace eAgenda.Webapi.Config.AutoMapperConfig
                 .ForMember(destino => destino.Itens, opt => opt.Ignore())
                 .AfterMap((viewModel, tarefa) =>
                 {
-         
-                    if(viewModel.Itens == null || viewModel.Itens.Count == 0)
+
+                    if (viewModel.Itens == null || viewModel.Itens.Count == 0)
                     {
                         return;
                     }
-                    
+
                     foreach (var itemVM in viewModel.Itens)
                     {
                         var item = new ItemTarefa();

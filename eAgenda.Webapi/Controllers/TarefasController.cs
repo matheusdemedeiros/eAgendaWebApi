@@ -79,7 +79,7 @@ namespace eAgenda.Webapi.Controllers
         [HttpPut("{id:guid}")]
         public ActionResult<FormsTarefaViewModel> Editar(Guid id, EditarTarefaViewModel tarefaVM)
         {
-           var tarefaResult = servicoTarefa.SelecionarPorId(id);
+            var tarefaResult = servicoTarefa.SelecionarPorId(id);
 
             if (tarefaResult.IsFailed && RegistroNaoEncontrado(tarefaResult, "não encontrada"))
                 return NotFound(tarefaResult);

@@ -4,7 +4,7 @@ using eAgenda.Webapi.ViewModels.ModuloAutenticacao;
 
 namespace eAgenda.Webapi.Config.AutoMapperConfig
 {
-    public class UsuarioProfile: Profile
+    public class UsuarioProfile : Profile
     {
         public UsuarioProfile()
         {

@@ -1,7 +1,4 @@
-using AutoMapperBuilder.Extensions.DependencyInjection;
-using eAgenda.Dominio.ModuloDespesa;
 using eAgenda.Webapi.Config;
-using eAgenda.Webapi.Config.AutoMapperConfig;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -29,21 +26,6 @@ namespace eAgenda.Webapi
             });
 
             services.AddAutoMapper(typeof(Startup));
-
-            //services.AddAutoMapperBuilder(builder =>
-            //{
-            //    builder.Profiles.Add(new DespesaProfile(services.BuildServiceProvider()
-            //        .GetRequiredService<IRepositorioCategoria>()));
-
-            //});
-
-            //services.AddAutoMapper(config =>
-            //{
-            //    config.AddProfile<TarefaProfile>();
-            //    config.AddProfile<ContatoProfile>();
-            //    config.AddProfile<CompromissoProfile>();
-            //    config.AddProfile<UsuarioProfile>();
-            //});
 
             services.ConfigurarInjecaoDependencia();
             services.ConfigurarAutenticacao();

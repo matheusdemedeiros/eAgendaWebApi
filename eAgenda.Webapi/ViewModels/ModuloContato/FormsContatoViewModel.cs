@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace eAgenda.Webapi.ViewModels.ModuloContato
 {
@@ -19,7 +18,7 @@ namespace eAgenda.Webapi.ViewModels.ModuloContato
     public class InserirContatoViewModel : FormsContatoViewModel
     {
     }
-    
+
     public class EditarContatoViewModel : FormsContatoViewModel
     {
     }
