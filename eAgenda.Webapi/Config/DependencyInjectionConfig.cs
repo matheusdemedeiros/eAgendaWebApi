@@ -14,6 +14,7 @@ using eAgenda.Infra.Orm.ModuloCompromisso;
 using eAgenda.Infra.Orm.ModuloContato;
 using eAgenda.Infra.Orm.ModuloDespesa;
 using eAgenda.Infra.Orm.ModuloTarefa;
+using eAgenda.Webapi.Config.AutoMapperConfig.Resolvers;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace eAgenda.Webapi.Config
@@ -23,7 +24,7 @@ namespace eAgenda.Webapi.Config
         public static void ConfigurarInjecaoDependencia(this IServiceCollection services)
         {
             services.AddSingleton((x) => new ConfiguracaoAplicacaoeAgenda().ConnectionStrings);
-            
+
             services.AddDbContext<eAgendaDbContext>();
             services.AddScoped<IContextoPersistencia, eAgendaDbContext>();
 
@@ -45,6 +46,8 @@ namespace eAgenda.Webapi.Config
 
             services.AddScoped<IRepositorioDespesa, RepositorioDespesaOrm>();
             services.AddTransient<ServicoDespesa>();
+
+            services.AddScoped<CategoriaResolver>();
         }
     }
 }
