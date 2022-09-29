@@ -1,4 +1,5 @@
-﻿using System;
+﻿using eAgenda.Webapi.ViewModels.ModuloCategoria;
+using System;
 using System.Collections.Generic;
 
 namespace eAgenda.Webapi.ViewModels.ModuloDespesa

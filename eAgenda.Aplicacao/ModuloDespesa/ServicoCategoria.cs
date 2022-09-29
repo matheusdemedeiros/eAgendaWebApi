@@ -81,6 +81,17 @@ namespace eAgenda.Aplicacao.ModuloDespesa
             return Result.Ok(categoria);
         }
 
+        public Result Excluir(Guid id)
+        {
+            var categoriaResult = SelecionarPorId(id);
+
+            if (categoriaResult.IsSuccess)
+                return Excluir(categoriaResult.Value);
+
+            return Result.Fail(categoriaResult.Errors);
+        }
+
+
         public Result Excluir(Categoria categoria)
         {
             Log.Logger.Debug("Tentando excluir categoria... {@c}", categoria);
@@ -107,13 +118,13 @@ namespace eAgenda.Aplicacao.ModuloDespesa
             }
         }
 
-        public Result<List<Categoria>> SelecionarTodos()
+        public Result<List<Categoria>> SelecionarTodos(Guid guid = new Guid())
         {
             Log.Logger.Debug("Tentando selecionar categorias...");
 
             try
             {
-                var categorias = repositorioCategoria.SelecionarTodos();
+                var categorias = repositorioCategoria.SelecionarTodos(guid);
 
                 Log.Logger.Information("Categorias selecionadas com sucesso");
 
