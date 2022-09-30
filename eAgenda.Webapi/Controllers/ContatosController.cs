@@ -9,7 +9,7 @@ using System.Collections.Generic;
 
 namespace eAgenda.Webapi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/contatos")]
     [ApiController]
     [Authorize]
     public class ContatosController : eAgendaControllerBase
@@ -26,7 +26,7 @@ namespace eAgenda.Webapi.Controllers
         [HttpGet]
         public ActionResult<List<ListarContatoViewModel>> SelecionarTodos()
         {
-            var contatoResult = servicoContato.SelecionarTodos(UsuarioLogado.Id);
+            var contatoResult = servicoContato.SelecionarTodos();
 
             if (contatoResult.IsFailed)
                 return InternalError(contatoResult);
@@ -38,14 +38,13 @@ namespace eAgenda.Webapi.Controllers
             });
         }
 
-
-        [HttpGet("visualizar-completo/{id:guid}")]
-        public ActionResult<VisualizarContatoViewModel> SelecionarPorId(Guid id)
+        [HttpGet("visualizacao-completa/{id:guid}")]
+        public ActionResult<VisualizarContatoViewModel> SelecionarContatoCompletoPorId(Guid id)
         {
             var contatoResult = servicoContato.SelecionarPorId(id);
 
             if (contatoResult.IsFailed && RegistroNaoEncontrado(contatoResult, "não encontrado"))
-                return NotFound();
+                return NotFound(contatoResult);
 
             if (contatoResult.IsFailed)
                 return InternalError(contatoResult);
@@ -57,12 +56,28 @@ namespace eAgenda.Webapi.Controllers
             });
         }
 
+        [HttpGet("{id:guid}")]
+        public ActionResult<FormsContatoViewModel> SelecionarContatoPorId(Guid id)
+        {
+            var contatoResult = servicoContato.SelecionarPorId(id);
+
+            if (contatoResult.IsFailed && RegistroNaoEncontrado(contatoResult, "não encontrado"))
+                return NotFound(contatoResult);
+
+            if (contatoResult.IsFailed)
+                return InternalError(contatoResult);
+
+            return Ok(new
+            {
+                sucesso = true,
+                dados = mapeadorContatos.Map<FormsContatoViewModel>(contatoResult.Value)
+            });
+        }
+
         [HttpPost]
         public ActionResult<FormsContatoViewModel> Inserir(FormsContatoViewModel contatoVM)
         {
             var contato = mapeadorContatos.Map<Contato>(contatoVM);
-
-            contato.UsuarioId = UsuarioLogado.Id;
 
             var contatoResult = servicoContato.Inserir(contato);
 
@@ -82,7 +97,7 @@ namespace eAgenda.Webapi.Controllers
             var contatoResult = servicoContato.SelecionarPorId(id);
 
             if (contatoResult.IsFailed && RegistroNaoEncontrado(contatoResult, "não encontrado"))
-                return NotFound();
+                return NotFound(contatoResult);
 
             var contato = mapeadorContatos.Map(contatoVM, contatoResult.Value);
 
@@ -103,8 +118,8 @@ namespace eAgenda.Webapi.Controllers
         {
             var contatoResult = servicoContato.Excluir(id);
 
-            if (contatoResult.IsFailed && RegistroNaoEncontrado<Contato>(contatoResult, "não encontrado"))
-                return NotFound();
+            if (contatoResult.IsFailed && RegistroNaoEncontrado<Contato>(contatoResult, "não encontrdo"))
+                return NotFound<Contato>(contatoResult);
 
             if (contatoResult.IsFailed)
                 return InternalError<Contato>(contatoResult);

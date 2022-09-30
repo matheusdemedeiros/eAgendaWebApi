@@ -25,6 +25,8 @@ namespace eAgenda.Webapi
                 config.SuppressModelStateInvalidFilter = true;
             });
 
+            services.AddHttpContextAccessor();
+
             services.AddAutoMapper(typeof(Startup));
 
             services.ConfigurarInjecaoDependencia();

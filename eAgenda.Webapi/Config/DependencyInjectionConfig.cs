@@ -14,6 +14,7 @@ using eAgenda.Infra.Orm.ModuloCompromisso;
 using eAgenda.Infra.Orm.ModuloContato;
 using eAgenda.Infra.Orm.ModuloDespesa;
 using eAgenda.Infra.Orm.ModuloTarefa;
+using eAgenda.Webapi.Config.AutoMapperConfig;
 using eAgenda.Webapi.Config.AutoMapperConfig.Resolvers;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -48,6 +49,8 @@ namespace eAgenda.Webapi.Config
             services.AddTransient<ServicoDespesa>();
 
             services.AddScoped<CategoriaResolver>();
+
+            services.AddTransient<ConfigurarCategoriasMappingAction>();
         }
     }
 }

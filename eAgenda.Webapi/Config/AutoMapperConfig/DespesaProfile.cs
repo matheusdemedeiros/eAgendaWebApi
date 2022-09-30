@@ -28,18 +28,18 @@ namespace eAgenda.Webapi.Config.AutoMapperConfig
             ConverterEntidadeParaViewModel();
         }
 
-        private void ConverterEntidadeParaViewModel()
+        private void ConverterViewModelParaEntidade()
         {
             CreateMap<InserirDespesaViewModel, Despesa>()
-                .ForMember(destino => destino.Categorias,
-                opt => opt.MapFrom<CategoriaResolver>());
+               .ForMember(destino => destino.UsuarioId, opt => opt.MapFrom<UsuarioResolver>())
+                .AfterMap<ConfigurarCategoriasMappingAction>();
 
 
             CreateMap<EditarDespesaViewModel, Despesa>()
-            .ForMember(destino => destino.Categorias, opt => opt.Ignore());
+                .AfterMap<ConfigurarCategoriasMappingAction>();
         }
 
-        private void ConverterViewModelParaEntidade()
+        private void ConverterEntidadeParaViewModel()
         {
             CreateMap<Categoria, VisualizarCategoriaViewModel>();
             CreateMap<Despesa, ListarDespesaViewModel>();

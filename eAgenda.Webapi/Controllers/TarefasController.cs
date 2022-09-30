@@ -9,7 +9,7 @@ using System.Collections.Generic;
 
 namespace eAgenda.Webapi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/tarefas")]
     [ApiController]
     [Authorize]
     public class TarefasController : eAgendaControllerBase
@@ -38,8 +38,7 @@ namespace eAgenda.Webapi.Controllers
             });
         }
 
-
-        [HttpGet("visualizar-completa/{id:guid}")]
+        [HttpGet("visualizacao-completa/{id:guid}")]
         public ActionResult<VisualizarTarefaViewModel> SelecionarTarefaCompletaPorId(Guid id)
         {
             var tarefaResult = servicoTarefa.SelecionarPorId(id);
@@ -57,12 +56,28 @@ namespace eAgenda.Webapi.Controllers
             });
         }
 
+        [HttpGet("{id:guid}")]
+        public ActionResult<FormsTarefaViewModel> SelecionarTarefaPorId(Guid id)
+        {
+            var tarefaResult = servicoTarefa.SelecionarPorId(id);
+
+            if (tarefaResult.IsFailed && RegistroNaoEncontrado(tarefaResult, "não encontrada"))
+                return NotFound(tarefaResult);
+
+            if (tarefaResult.IsFailed)
+                return InternalError(tarefaResult);
+
+            return Ok(new
+            {
+                sucesso = true,
+                dados = mapeadorTarefas.Map<FormsTarefaViewModel>(tarefaResult.Value)
+            });
+        }
+
         [HttpPost]
         public ActionResult<FormsTarefaViewModel> Inserir(InserirTarefaViewModel tarefaVM)
         {
             var tarefa = mapeadorTarefas.Map<Tarefa>(tarefaVM);
-
-            tarefa.UsuarioId = UsuarioLogado.Id;
 
             var tarefaResult = servicoTarefa.Inserir(tarefa);
 
@@ -88,7 +103,6 @@ namespace eAgenda.Webapi.Controllers
 
             tarefaResult = servicoTarefa.Editar(tarefa);
 
-
             if (tarefaResult.IsFailed)
                 return InternalError(tarefaResult);
 
@@ -105,14 +119,12 @@ namespace eAgenda.Webapi.Controllers
             var tarefaResult = servicoTarefa.Excluir(id);
 
             if (tarefaResult.IsFailed && RegistroNaoEncontrado<Tarefa>(tarefaResult, "não encontrada"))
-                return NotFound(tarefaResult);
+                return NotFound<Tarefa>(tarefaResult);
 
             if (tarefaResult.IsFailed)
                 return InternalError<Tarefa>(tarefaResult);
 
             return NoContent();
         }
-
-
     }
 }

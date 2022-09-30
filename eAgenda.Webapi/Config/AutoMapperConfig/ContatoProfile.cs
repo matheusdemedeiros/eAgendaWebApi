@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using eAgenda.Dominio.ModuloContato;
+using eAgenda.Webapi.Config.AutoMapperConfig.Resolvers;
 using eAgenda.Webapi.ViewModels.ModuloContato;
 
 namespace eAgenda.Webapi.Config.AutoMapperConfig
@@ -26,7 +27,8 @@ namespace eAgenda.Webapi.Config.AutoMapperConfig
 
             CreateMap<VisualizarContatoViewModel, Contato>();
 
-            CreateMap<FormsContatoViewModel, Contato>();
+            CreateMap<FormsContatoViewModel, Contato>()
+                 .ForMember(destino => destino.UsuarioId, opt => opt.MapFrom<UsuarioResolver>());
         }
     }
 }

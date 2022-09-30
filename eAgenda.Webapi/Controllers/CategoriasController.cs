@@ -9,7 +9,7 @@ using System.Collections.Generic;
 
 namespace eAgenda.Webapi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/categorias")]
     [ApiController]
     [Authorize]
     public class CategoriasController : eAgendaControllerBase
@@ -26,7 +26,7 @@ namespace eAgenda.Webapi.Controllers
         [HttpGet]
         public ActionResult<List<ListarCategoriaViewModel>> SelecionarTodos()
         {
-            var categoriaResult = servicoCategoria.SelecionarTodos(UsuarioLogado.Id);
+            var categoriaResult = servicoCategoria.SelecionarTodos();
 
             if (categoriaResult.IsFailed)
                 return InternalError(categoriaResult);
@@ -38,14 +38,13 @@ namespace eAgenda.Webapi.Controllers
             });
         }
 
-
-        [HttpGet("visualizar-completa/{id:guid}")]
-        public ActionResult<VisualizarCategoriaViewModel> SelecionarPorId(Guid id)
+        [HttpGet("visualizacao-completa/{id:guid}")]
+        public ActionResult<VisualizarCategoriaViewModel> SelecionarCategoriaCompletoPorId(Guid id)
         {
             var categoriaResult = servicoCategoria.SelecionarPorId(id);
 
             if (categoriaResult.IsFailed && RegistroNaoEncontrado(categoriaResult, "não encontrada"))
-                return NotFound();
+                return NotFound(categoriaResult);
 
             if (categoriaResult.IsFailed)
                 return InternalError(categoriaResult);
@@ -57,12 +56,28 @@ namespace eAgenda.Webapi.Controllers
             });
         }
 
+        [HttpGet("{id:guid}")]
+        public ActionResult<FormsCategoriaViewModel> SelecionarCategoriaPorId(Guid id)
+        {
+            var categoriaResult = servicoCategoria.SelecionarPorId(id);
+
+            if (categoriaResult.IsFailed && RegistroNaoEncontrado(categoriaResult, "não encontrada"))
+                return NotFound(categoriaResult);
+
+            if (categoriaResult.IsFailed)
+                return InternalError(categoriaResult);
+
+            return Ok(new
+            {
+                sucesso = true,
+                dados = mapeadorCategorias.Map<FormsCategoriaViewModel>(categoriaResult.Value)
+            });
+        }
+
         [HttpPost]
         public ActionResult<FormsCategoriaViewModel> Inserir(FormsCategoriaViewModel categoriaVM)
         {
             var categoria = mapeadorCategorias.Map<Categoria>(categoriaVM);
-
-            categoria.UsuarioId = UsuarioLogado.Id;
 
             var categoriaResult = servicoCategoria.Inserir(categoria);
 
@@ -82,7 +97,7 @@ namespace eAgenda.Webapi.Controllers
             var categoriaResult = servicoCategoria.SelecionarPorId(id);
 
             if (categoriaResult.IsFailed && RegistroNaoEncontrado(categoriaResult, "não encontrada"))
-                return NotFound();
+                return NotFound(categoriaResult);
 
             var categoria = mapeadorCategorias.Map(categoriaVM, categoriaResult.Value);
 
@@ -103,8 +118,8 @@ namespace eAgenda.Webapi.Controllers
         {
             var categoriaResult = servicoCategoria.Excluir(id);
 
-            if (categoriaResult.IsFailed && RegistroNaoEncontrado<Categoria>(categoriaResult, "não encontrado"))
-                return NotFound();
+            if (categoriaResult.IsFailed && RegistroNaoEncontrado<Categoria>(categoriaResult, "não encontrada"))
+                return NotFound<Categoria>(categoriaResult);
 
             if (categoriaResult.IsFailed)
                 return InternalError<Categoria>(categoriaResult);

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using eAgenda.Dominio.ModuloDespesa;
+using eAgenda.Webapi.Config.AutoMapperConfig.Resolvers;
 using eAgenda.Webapi.ViewModels.ModuloCategoria;
 
 namespace eAgenda.Webapi.Config.AutoMapperConfig
@@ -26,7 +27,8 @@ namespace eAgenda.Webapi.Config.AutoMapperConfig
 
             CreateMap<VisualizarCategoriaViewModel, Categoria>();
 
-            CreateMap<FormsCategoriaViewModel, Categoria>();
+            CreateMap<FormsCategoriaViewModel, Categoria>()
+            .ForMember(destino => destino.UsuarioId, opt => opt.MapFrom<UsuarioResolver>());
         }
     }
 }

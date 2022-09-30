@@ -2,6 +2,7 @@
 using eAgenda.Dominio.Compartilhado;
 using eAgenda.Dominio.ModuloCompromisso;
 using eAgenda.Dominio.ModuloContato;
+using eAgenda.Webapi.Config.AutoMapperConfig.Resolvers;
 using eAgenda.Webapi.ViewModels.ModuloCompromisso;
 using eAgenda.Webapi.ViewModels.ModuloContato;
 
@@ -17,7 +18,7 @@ namespace eAgenda.Webapi.Config.AutoMapperConfig
             ConverterEntidadeParaViewModel();
         }
 
-        private void ConverterViewModelParaEntidade()
+        private void ConverterEntidadeParaViewModel()
         {
             CreateMap<Contato, VisualizarContatoViewModel>();
 
@@ -28,9 +29,10 @@ namespace eAgenda.Webapi.Config.AutoMapperConfig
             opt => opt.MapFrom(origem => origem.TipoLocal.GetDescription()));
         }
 
-        private void ConverterEntidadeParaViewModel()
+        private void ConverterViewModelParaEntidade()
         {
-            CreateMap<FormsCompromissoViewModel, Compromisso>();
+            CreateMap<FormsCompromissoViewModel, Compromisso>()
+            .ForMember(destino => destino.UsuarioId, opt => opt.MapFrom<UsuarioResolver>());
         }
     }
 }

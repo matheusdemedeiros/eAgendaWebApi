@@ -20,12 +20,12 @@ namespace eAgenda.Webapi.Config.AutoMapperConfig.Resolvers
         {
             var categoriasEncontradas = new List<Categoria>();
 
-            foreach (var item in source.CategoriasId)
-            {
-                var categoria = repositorioCategoria.SelecionarPorId(item);
+            //foreach (var item in source.CategoriasId)
+            //{
+            //    var categoria = repositorioCategoria.SelecionarPorId(item);
 
-                destination.AtribuirCategoria(categoria);
-            }
+            //    destination.AtribuirCategoria(categoria);
+            //}
 
             return categoriasEncontradas;
         }

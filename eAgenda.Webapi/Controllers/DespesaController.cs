@@ -9,15 +9,15 @@ using System.Collections.Generic;
 
 namespace eAgenda.Webapi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/despesas")]
     [ApiController]
     [Authorize]
-    public class DespesaController : eAgendaControllerBase
+    public class DespesasController : eAgendaControllerBase
     {
         private readonly ServicoDespesa servicoDespesa;
         private readonly IMapper mapeadorDespesa;
 
-        public DespesaController(ServicoDespesa servicoDespesa, IMapper mapeadorDespesa)
+        public DespesasController(ServicoDespesa servicoDespesa, IMapper mapeadorDespesa)
         {
             this.servicoDespesa = servicoDespesa;
             this.mapeadorDespesa = mapeadorDespesa;

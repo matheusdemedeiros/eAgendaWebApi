@@ -9,7 +9,7 @@ using System.Collections.Generic;
 
 namespace eAgenda.Webapi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/compromissos")]
     [ApiController]
     [Authorize]
     public class CompromissosController : eAgendaControllerBase
@@ -26,7 +26,7 @@ namespace eAgenda.Webapi.Controllers
         [HttpGet]
         public ActionResult<List<ListarCompromissoViewModel>> SelecionarTodos()
         {
-            var compromissoResult = servicoCompromisso.SelecionarTodos(UsuarioLogado.Id);
+            var compromissoResult = servicoCompromisso.SelecionarTodos();
 
             if (compromissoResult.IsFailed)
                 return InternalError(compromissoResult);
@@ -38,13 +38,43 @@ namespace eAgenda.Webapi.Controllers
             });
         }
 
-        [HttpGet("visualizar-completo/{id:guid}")]
-        public ActionResult<VisualizarCompromissoViewModel> SelecionarPorId(Guid id)
+        [HttpGet, Route("entre/{dataInicial:datetime}/{dataFinal:datetime}")]
+        public ActionResult<List<ListarCompromissoViewModel>> SelecionarCompromissosFuturos(DateTime dataInicial, DateTime dataFinal)
+        {
+            var compromissoResult = servicoCompromisso.SelecionarCompromissosFuturos(dataInicial, dataFinal);
+
+            if (compromissoResult.IsFailed)
+                return InternalError(compromissoResult);
+
+            return Ok(new
+            {
+                sucesso = true,
+                dados = mapeadorCompromissos.Map<List<ListarCompromissoViewModel>>(compromissoResult.Value)
+            });
+        }
+
+        [HttpGet, Route("passados/{dataAtual:datetime}")]
+        public ActionResult<List<ListarCompromissoViewModel>> SelecionarCompromissosPassados(DateTime dataAtual)
+        {
+            var compromissoResult = servicoCompromisso.SelecionarCompromissosPassados(dataAtual);
+
+            if (compromissoResult.IsFailed)
+                return InternalError(compromissoResult);
+
+            return Ok(new
+            {
+                sucesso = true,
+                dados = mapeadorCompromissos.Map<List<ListarCompromissoViewModel>>(compromissoResult.Value)
+            });
+        }
+
+        [HttpGet("visualizacao-completa/{id:guid}")]
+        public ActionResult<VisualizarCompromissoViewModel> SelecionarCompromissoCompletoPorId(Guid id)
         {
             var compromissoResult = servicoCompromisso.SelecionarPorId(id);
 
             if (compromissoResult.IsFailed && RegistroNaoEncontrado(compromissoResult, "não encontrado"))
-                return NotFound();
+                return NotFound(compromissoResult);
 
             if (compromissoResult.IsFailed)
                 return InternalError(compromissoResult);
@@ -56,12 +86,28 @@ namespace eAgenda.Webapi.Controllers
             });
         }
 
+        [HttpGet("{id:guid}")]
+        public ActionResult<FormsCompromissoViewModel> SelecionarCompromissoPorId(Guid id)
+        {
+            var compromissoResult = servicoCompromisso.SelecionarPorId(id);
+
+            if (compromissoResult.IsFailed && RegistroNaoEncontrado(compromissoResult, "não encontrado"))
+                return NotFound(compromissoResult);
+
+            if (compromissoResult.IsFailed)
+                return InternalError(compromissoResult);
+
+            return Ok(new
+            {
+                sucesso = true,
+                dados = mapeadorCompromissos.Map<FormsCompromissoViewModel>(compromissoResult.Value)
+            });
+        }
+
         [HttpPost]
         public ActionResult<FormsCompromissoViewModel> Inserir(FormsCompromissoViewModel compromissoVM)
         {
             var compromisso = mapeadorCompromissos.Map<Compromisso>(compromissoVM);
-
-            compromisso.UsuarioId = UsuarioLogado.Id;
 
             var compromissoResult = servicoCompromisso.Inserir(compromisso);
 
@@ -81,7 +127,7 @@ namespace eAgenda.Webapi.Controllers
             var compromissoResult = servicoCompromisso.SelecionarPorId(id);
 
             if (compromissoResult.IsFailed && RegistroNaoEncontrado(compromissoResult, "não encontrado"))
-                return NotFound();
+                return NotFound(compromissoResult);
 
             var compromisso = mapeadorCompromissos.Map(compromissoVM, compromissoResult.Value);
 
@@ -103,7 +149,7 @@ namespace eAgenda.Webapi.Controllers
             var compromissoResult = servicoCompromisso.Excluir(id);
 
             if (compromissoResult.IsFailed && RegistroNaoEncontrado<Compromisso>(compromissoResult, "não encontrado"))
-                return NotFound();
+                return NotFound<Compromisso>(compromissoResult);
 
             if (compromissoResult.IsFailed)
                 return InternalError<Compromisso>(compromissoResult);
