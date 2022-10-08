@@ -1,11 +1,14 @@
 ﻿using eAgenda.Dominio.ModuloTarefa;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System;
 
 namespace eAgenda.Webapi.ViewModels.ModuloTarefa
 {
     public class FormsTarefaViewModel
     {
+        public Guid Id { get; set; }
+
         [Required(ErrorMessage = "O campo {0} é obrigatório")]
         public string Titulo { get; set; }
 

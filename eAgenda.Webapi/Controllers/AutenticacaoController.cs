@@ -59,6 +59,15 @@ namespace eAgenda.Webapi.Controllers
             });
         }
 
+        [HttpPost("sair")]
+        public async Task<ActionResult> Logout()
+        {
+            await servicoAutenticacao.Sair();
+
+            return Ok();
+
+        }
+
         private TokenViewModel GerarJwt(Usuario usuario)
         {
             var identityClaims = new ClaimsIdentity();
