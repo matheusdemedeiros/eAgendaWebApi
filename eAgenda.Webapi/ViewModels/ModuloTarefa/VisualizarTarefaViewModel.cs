@@ -17,7 +17,7 @@ namespace eAgenda.Webapi.ViewModels.ModuloTarefa
         public int QuantidadeItens { get; set; }
         public decimal PercentualConcluido { get; set; }
         public string Prioridade { get; set; }
-        public string Situação { get; set; }
+        public string Situacao { get; set; }
         public List<VisualizarItemTarefaViewModel> itens { get; set; }
     }
 }

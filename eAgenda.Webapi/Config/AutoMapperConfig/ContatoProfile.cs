@@ -28,7 +28,8 @@ namespace eAgenda.Webapi.Config.AutoMapperConfig
             CreateMap<VisualizarContatoViewModel, Contato>();
 
             CreateMap<FormsContatoViewModel, Contato>()
-                 .ForMember(destino => destino.UsuarioId, opt => opt.MapFrom<UsuarioResolver>());
+                 .ForMember(destino => destino.UsuarioId, opt => opt.MapFrom<UsuarioResolver>())
+                 .ForMember(destino => destino.Id, opt => opt.Ignore());
         }
     }
 }

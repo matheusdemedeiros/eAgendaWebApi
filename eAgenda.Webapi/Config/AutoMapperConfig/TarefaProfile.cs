@@ -3,6 +3,8 @@ using eAgenda.Dominio.Compartilhado;
 using eAgenda.Dominio.ModuloTarefa;
 using eAgenda.Webapi.Config.AutoMapperConfig.Resolvers;
 using eAgenda.Webapi.ViewModels.ModuloTarefa;
+using System;
+using Taikandi;
 
 namespace eAgenda.Webapi.Config.AutoMapperConfig
 {
@@ -19,10 +21,16 @@ namespace eAgenda.Webapi.Config.AutoMapperConfig
             CreateMap<InserirTarefaViewModel, Tarefa>()
                 .ForMember(destino => destino.UsuarioId, opt => opt.MapFrom<UsuarioResolver>())
                 .ForMember(destino => destino.Itens, opt => opt.Ignore())
+                
+                .ForMember(destino => destino.Id, opt => opt.Ignore())
+                
                 .AfterMap<AdicionarItensMappingAction>();
 
             CreateMap<EditarTarefaViewModel, Tarefa>()
                .ForMember(destino => destino.Itens, opt => opt.Ignore())
+               
+               .ForMember(destino => destino.Id, opt => opt.Ignore())
+               
                .AfterMap<EditarItensMappingAction>();
         }
 
@@ -30,13 +38,13 @@ namespace eAgenda.Webapi.Config.AutoMapperConfig
         {
             CreateMap<Tarefa, ListarTarefaViewModel>()
                 .ForMember(destino => destino.Prioridade, opt => opt.MapFrom(origem => origem.Prioridade.GetDescription()))
-                .ForMember(destino => destino.Situação, opt =>
+                .ForMember(destino => destino.Situacao, opt =>
                                    opt.MapFrom(origem => origem.PercentualConcluido == 100 ? "Concluído" : "Pendente"));
 
             CreateMap<Tarefa, VisualizarTarefaViewModel>()
                 .ForMember(destino => destino.Prioridade, opt => opt.MapFrom(origem => origem.Prioridade.GetDescription()))
 
-                .ForMember(destino => destino.Situação, opt =>
+                .ForMember(destino => destino.Situacao, opt =>
                     opt.MapFrom(origem => origem.PercentualConcluido == 100 ? "Concluído" : "Pendente"))
 
                 .ForMember(destino => destino.QuantidadeItens, opt => opt.MapFrom(origem => origem.Itens.Count));
