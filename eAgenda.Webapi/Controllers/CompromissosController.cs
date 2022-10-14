@@ -26,7 +26,7 @@ namespace eAgenda.Webapi.Controllers
         [HttpGet]
         public ActionResult<List<ListarCompromissoViewModel>> SelecionarTodos()
         {
-            var compromissoResult = servicoCompromisso.SelecionarTodos();
+            var compromissoResult = servicoCompromisso.SelecionarTodos(UsuarioLogado.Id);
 
             if (compromissoResult.IsFailed)
                 return InternalError(compromissoResult);

@@ -5,6 +5,7 @@ using eAgenda.Dominio.ModuloContato;
 using eAgenda.Webapi.Config.AutoMapperConfig.Resolvers;
 using eAgenda.Webapi.ViewModels.ModuloCompromisso;
 using eAgenda.Webapi.ViewModels.ModuloContato;
+using System;
 
 namespace eAgenda.Webapi.Config.AutoMapperConfig
 {
@@ -32,7 +33,14 @@ namespace eAgenda.Webapi.Config.AutoMapperConfig
         private void ConverterViewModelParaEntidade()
         {
             CreateMap<FormsCompromissoViewModel, Compromisso>()
-            .ForMember(destino => destino.UsuarioId, opt => opt.MapFrom<UsuarioResolver>());
+            .ForMember(destino => destino.UsuarioId, opt => opt.MapFrom<UsuarioResolver>())
+            .ForMember(destino => destino.Id, opt => opt.Ignore())
+            .ForMember(destino => destino.ContatoId, opt => opt.Ignore())
+            .AfterMap((viewModel, compromisso) =>
+            {
+                if (!viewModel.ContatoId.Equals(Guid.Empty))
+                    compromisso.ContatoId = viewModel.ContatoId;
+            });
         }
     }
 }
