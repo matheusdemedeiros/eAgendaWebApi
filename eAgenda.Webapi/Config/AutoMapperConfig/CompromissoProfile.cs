@@ -28,6 +28,8 @@ namespace eAgenda.Webapi.Config.AutoMapperConfig
             CreateMap<Compromisso, VisualizarCompromissoViewModel>()
             .ForMember(destino => destino.TipoLocalizacao,
             opt => opt.MapFrom(origem => origem.TipoLocal.GetDescription()));
+
+            CreateMap<Compromisso, FormsCompromissoViewModel>();
         }
 
         private void ConverterViewModelParaEntidade()

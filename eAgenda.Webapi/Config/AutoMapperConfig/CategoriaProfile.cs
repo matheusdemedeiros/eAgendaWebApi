@@ -19,6 +19,8 @@ namespace eAgenda.Webapi.Config.AutoMapperConfig
             CreateMap<Categoria, ListarCategoriaViewModel>();
 
             CreateMap<Categoria, VisualizarCategoriaViewModel>();
+
+            CreateMap<Categoria, FormsCategoriaViewModel>();
         }
 
         private void ConverterViewModelParaEntidade()
@@ -28,7 +30,8 @@ namespace eAgenda.Webapi.Config.AutoMapperConfig
             CreateMap<VisualizarCategoriaViewModel, Categoria>();
 
             CreateMap<FormsCategoriaViewModel, Categoria>()
-            .ForMember(destino => destino.UsuarioId, opt => opt.MapFrom<UsuarioResolver>());
+                .ForMember(destino => destino.Id, opt => opt.Ignore())
+                .ForMember(destino => destino.UsuarioId, opt => opt.MapFrom<UsuarioResolver>());
         }
     }
 }

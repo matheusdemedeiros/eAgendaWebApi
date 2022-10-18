@@ -26,7 +26,7 @@ namespace eAgenda.Webapi.Controllers
         [HttpGet]
         public ActionResult<List<ListarCategoriaViewModel>> SelecionarTodos()
         {
-            var categoriaResult = servicoCategoria.SelecionarTodos();
+            var categoriaResult = servicoCategoria.SelecionarTodos(UsuarioLogado.Id);
 
             if (categoriaResult.IsFailed)
                 return InternalError(categoriaResult);
